@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AASHTO 1993 — k Optimum</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
+
+:root {
+  --bg:     #0f1117;
+  --card:   #1a1d27;
+  --border: #2a2d3e;
+  --accent: #f0b429;
+  --jpcp:   #38bdf8;
+  --crcp:   #4ade80;
+  --text:   #e2e8f0;
+  --muted:  #64748b;
+  --ok:     #4ade80;
+  --bad:    #f87171;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; padding-bottom: 48px;
+}
+
+/* ══ HEADER ══ */
+.hdr {
+  background: var(--card);
+  border-bottom: 2px solid var(--accent);
+  padding: 8px 14px;
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: 10px;
+}
+.logo {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 600;
+  letter-spacing: .14em; color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 3px 7px; border-radius: 3px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.hdr-mid { flex: 1; min-width: 0; }
+.hdr-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hdr-sub   { font-size: 9px; color: var(--muted); margin-top: 1px; }
+.hdr-credit {
+  flex-shrink: 0; text-align: right;
+  border-left: 1px solid var(--border);
+  padding-left: 10px;
+}
+.hdr-by   { font-size: 8px; color: var(--muted); }
+.hdr-name { font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.hdr-org  { font-size: 8px; color: var(--muted); margin-top: 1px; white-space: nowrap; }
+
+/* ══ SECTION ══ */
+.sec {
+  margin: 10px 12px 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden;
+}
+.sec-hdr {
+  padding: 7px 14px;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted);
+  background: rgba(42,45,62,0.7);
+  border-bottom: 1px solid var(--border);
+}
+.sec-body { padding: 11px 14px; }
+
+/* ชื่อโครงการ input */
+.proj-inp {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: var(--text);
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-size: 14px; font-weight: 500;
+  outline: none;
+}
+.proj-inp:focus { border-color: var(--accent); }
+.proj-inp::placeholder { color: var(--muted); font-size: 12px; }
+
+/* ══ PILLS ══ */
+.pills { display: flex; gap: 5px; flex-wrap: wrap; }
+.pill {
+  flex: 1; min-width: 52px;
+  padding: 8px 4px; text-align: center;
+  font-size: 12px; font-weight: 600;
+  border-radius: 7px; cursor: pointer;
+  border: 1.5px solid var(--border);
+  color: var(--muted); transition: all .12s;
+  user-select: none;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+}
+.pa { border-color:var(--accent); color:var(--accent); background:rgba(240,180,41,.1); }
+.pb { border-color:var(--jpcp);   color:var(--jpcp);   background:rgba(56,189,248,.1); }
+.pg { border-color:var(--crcp);   color:var(--crcp);   background:rgba(74,222,128,.1); }
+
+/* ══ NUMBER INPUT ══ */
+.num-inp {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 8px 12px;
+}
+.num-inp:focus-within { border-color: var(--accent); }
+.num-inp input {
+  flex: 1; background: transparent;
+  border: none; outline: none;
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 20px; font-weight: 700; width: 0;
+}
+.num-unit { font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+/* 2-col param grid */
+.pgrid  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pblock { display: flex; flex-direction: column; gap: 5px; }
+.plabel { font-size: 9px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+
+/* ══ RESULT CARDS ══ */
+.rcards { display: flex; flex-direction: column; gap: 8px; margin: 10px 12px 0; }
+.rcard {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.rcard.ok-brd  { border-color: rgba(74,222,128,.3); }
+.rcard.bad-brd { border-color: rgba(248,113,113,.3); }
+
+.rc-hdr {
+  display: flex; align-items: baseline;
+  padding: 7px 14px; gap: 8px;
+  background: rgba(42,45,62,0.5);
+  border-bottom: 1px solid var(--border);
+}
+.rc-d   { font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:700; }
+.rc-cm  { font-size:12px; color:var(--muted); }
+.rc-kact {
+  margin-left: auto;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 20px;
+  background: rgba(240,180,41,.12); color: var(--accent);
+}
+.rc-body { display: grid; grid-template-columns: 1fr 1fr; }
+.rc-body.single { grid-template-columns: 1fr; }
+.rc-col {
+  padding: 10px 14px;
+  display: flex; flex-direction: column; gap: 2px;
+  border-right: 1px solid var(--border);
+}
+.rc-col:last-child { border-right: none; }
+.rc-type  { font-size: 10px; font-weight: 600; margin-bottom: 3px; }
+.rc-knum  { font-family:'IBM Plex Mono',monospace; font-size:24px; font-weight:700; line-height:1; }
+.rc-knum.na { font-size:13px; color:var(--muted); padding-top:8px; }
+.rc-unit  { font-size:10px; color:var(--muted); margin-top:1px; }
+
+/* Verdict bar */
+.vbar {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 14px;
+  border-top: 1px solid var(--border);
+  font-size: 11px; font-weight: 600;
+}
+.vbar.pass { background:rgba(74,222,128,.07);  color:var(--ok);  }
+.vbar.fail { background:rgba(248,113,113,.07); color:var(--bad); }
+.vbar.na   { background:rgba(100,116,139,.06); color:var(--muted); }
+.vdiff { margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.75; }
+
+/* Summary */
+.sum {
+  margin: 10px 12px 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 11px 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; color: var(--muted); line-height: 1.8;
+}
+.sum b { color: var(--text); font-weight: 600; }
+
+/* Guide */
+.guide { margin:10px 12px 0; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.g-hdr {
+  padding: 7px 14px;
+  font-size: 9px; font-weight: 700; letter-spacing:.12em; text-transform:uppercase;
+  color: var(--muted); background:rgba(42,45,62,0.7); border-bottom:1px solid var(--border);
+}
+.g-row {
+  display:flex; align-items:flex-start; gap:10px;
+  padding:9px 14px; border-bottom:1px solid var(--border);
+  font-size:11px;
+}
+.g-row:last-child { border-bottom:none; }
+.g-dot   { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:2px; }
+.g-label { font-weight:700; min-width:60px; }
+.g-desc  { color:var(--muted); line-height:1.5; }
+
+/* ══ PRINT / PDF ══ */
+@media print {
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  body { background:#fff; color:#000; font-family:'Sarabun',sans-serif; padding:0; }
+
+  /* ซ่อน UI ที่ไม่ต้องการ */
+  .hdr, .sec, .rcards, .sum, .guide, .btn-print-wrap { display:none; }
+
+  /* แสดงเฉพาะ print section */
+  .print-only { display:block !important; }
+
+  @page {
+    size: A4 portrait;
+    margin: 15mm 15mm 20mm 15mm;
+  }
+
+  /* ── Print Header ── */
+  .p-hdr {
+    border-bottom: 2px solid #333;
+    padding-bottom: 8px; margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+  .p-hdr-left .p-logo {
+    font-size: 9px; font-weight: 700; letter-spacing:.1em;
+    border: 1px solid #333; padding: 2px 6px; border-radius: 2px;
+    display: inline-block; margin-bottom: 4px;
+  }
+  .p-hdr-left .p-title { font-size: 16px; font-weight: 700; }
+  .p-hdr-left .p-sub   { font-size: 10px; color: #555; margin-top: 2px; }
+  .p-hdr-right { text-align: right; }
+  .p-hdr-right .p-by   { font-size: 8px; color: #888; }
+  .p-hdr-right .p-name { font-size: 12px; font-weight: 700; color: #000; }
+  .p-hdr-right .p-org  { font-size: 9px; color: #555; margin-top: 2px; line-height:1.5; }
+
+  /* ── Project info ── */
+  .p-proj {
+    background: #f5f5f5; border: 1px solid #ccc;
+    border-radius: 4px; padding: 8px 12px; margin-bottom: 12px;
+  }
+  .p-proj-label { font-size: 8px; color: #888; letter-spacing:.1em; text-transform:uppercase; }
+  .p-proj-name  { font-size: 14px; font-weight: 700; margin-top: 2px; }
+
+  /* ── Params box ── */
+  .p-params {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 6px; margin-bottom: 12px;
+  }
+  .p-param {
+    background: #f5f5f5; border: 1px solid #ddd;
+    border-radius: 3px; padding: 6px 8px; text-align: center;
+  }
+  .p-param-label { font-size: 8px; color: #888; }
+  .p-param-val   { font-size: 13px; font-weight: 700; margin-top: 2px; }
+
+  /* ── Result table ── */
+  .p-sec-title {
+    font-size: 10px; font-weight: 700; letter-spacing:.1em;
+    text-transform: uppercase; color: #555;
+    border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 8px;
+  }
+  table.p-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 11px; margin-bottom: 14px;
+  }
+  table.p-table th {
+    background: #333; color: #fff;
+    padding: 6px 10px; text-align: center;
+    font-size: 10px; font-weight: 600;
+  }
+  table.p-table td {
+    padding: 7px 10px; text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  table.p-table tr:nth-child(even) td { background: #f9f9f9; }
+  table.p-table .pass { color: #16a34a; font-weight: 700; }
+  table.p-table .fail { color: #dc2626; font-weight: 700; }
+  table.p-table .na   { color: #888; }
+  table.p-table .kbig { font-size: 13px; font-weight: 700; }
+
+  /* ── Footer ── */
+  .p-footer {
+    position: fixed; bottom: 10mm; left: 15mm; right: 15mm;
+    border-top: 1px solid #ccc; padding-top: 5px;
+    display: flex; justify-content: space-between;
+    font-size: 8px; color: #888;
+  }
+
+  /* ── Note ── */
+  .p-note {
+    background: #f5f5f5; border-left: 3px solid #333;
+    padding: 8px 12px; font-size: 10px; color: #555;
+    line-height: 1.7; margin-bottom: 12px;
+  }
+}
+
+/* ซ่อน print-only ใน screen */
+.print-only { display: none; }
+
+/* ปุ่มพิมพ์ */
+.btn-print-wrap { margin: 14px 12px 0; }
+.btn-print {
+  width: 100%;
+  background: rgba(240,180,41,.1);
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  padding: 11px; border-radius: 8px;
+  cursor: pointer; font-size: 13px; font-weight: 600;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-print:active { background: rgba(240,180,41,.2); }
+</style>
+</head>
+<body>
+
+<!-- ══ SCREEN: Header ══ -->
+<div class="hdr">
+  <div class="logo">AASHTO 1993</div>
+  <div class="hdr-mid">
+    <div class="hdr-title">Rigid Pavement — k Optimum</div>
+    <div class="hdr-sub">k_opt vs k_actual · D = 10–14 in</div>
+  </div>
+  <div class="hdr-credit">
+    <div class="hdr-by">พัฒนาโดย</div>
+    <div class="hdr-name">รศ.ดร.อิทธิพล มีผล</div>
+    <div class="hdr-org">TTC · KMUTNB</div>
+  </div>
+</div>
+
+<!-- ══ ชื่อโครงการ ══ -->
+<div class="sec">
+  <div class="sec-hdr">ชื่อโครงการ</div>
+  <div class="sec-body">
+    <input class="proj-inp" type="text" id="projname"
+           placeholder="กรอกชื่อโครงการ เช่น ทางหลวงหมายเลข 1 ช่วง กม.0+000 – กม.5+000"
+           oninput="updatePrint()">
+  </div>
+</div>
+
+<!-- ══ ประเภทผิวทาง ══ -->
+<div class="sec">
+  <div class="sec-hdr">ประเภทผิวทาง</div>
+  <div class="sec-body">
+    <div class="pills">
+      <div class="pill pa" id="btn-both" onclick="setMode('both')">ทั้งคู่</div>
+      <div class="pill"   id="btn-jpcp" onclick="setMode('jpcp')">JPCP/JRCP</div>
+      <div class="pill"   id="btn-crcp" onclick="setMode('crcp')">CRCP</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ W18 ══ -->
+<div class="sec">
+  <div class="sec-hdr">W18 ที่ต้องการ</div>
+  <div class="sec-body">
+    <div class="num-inp">
+      <input type="number" id="w18v" value="20" min="0.5" max="500" step="0.5"
+             inputmode="decimal" oninput="go()">
+      <span class="num-unit">ล้าน ESAL</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ k_actual ══ -->
+<div class="sec">
+  <div class="sec-hdr">k_actual — ค่า k จริงจากโครงสร้างชั้นทาง</div>
+  <div class="sec-body">
+    <div class="num-inp">
+      <input type="number" id="kav" value="200" min="50" max="1000" step="10"
+             inputmode="decimal" oninput="go()">
+      <span class="num-unit">pci</span>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:6px;">
+      ประเมินจาก CBR → MR → Nomograph AASHTO Fig.3.3
+    </div>
+  </div>
+</div>
+
+<!-- ══ พารามิเตอร์ ══ -->
+<div class="sec">
+  <div class="sec-hdr">พารามิเตอร์การออกแบบ</div>
+  <div class="sec-body" style="display:flex;flex-direction:column;gap:14px;">
+    <div class="pgrid">
+      <div class="pblock">
+        <div class="plabel">Reliability (R)</div>
+        <div class="pills">
+          <div class="pill" id="r80" onclick="setR(80)">80%</div>
+          <div class="pill" id="r85" onclick="setR(85)">85%</div>
+          <div class="pill pa" id="r90" onclick="setR(90)">90%</div>
+        </div>
+      </div>
+      <div class="pblock">
+        <div class="plabel">Terminal PT</div>
+        <div class="pills">
+          <div class="pill" id="pt20" onclick="setPT(2.0)">2.0</div>
+          <div class="pill pa" id="pt25" onclick="setPT(2.5)">2.5</div>
+        </div>
+      </div>
+    </div>
+    <div class="pgrid">
+      <div class="pblock">
+        <div class="plabel">Drainage Cd</div>
+        <div class="pills">
+          <div class="pill pa" id="cd10" onclick="setCd(1.0)">1.00</div>
+          <div class="pill"   id="cd11" onclick="setCd(1.1)">1.10</div>
+          <div class="pill"   id="cd12" onclick="setCd(1.2)">1.20</div>
+        </div>
+      </div>
+      <div class="pblock">
+        <div class="plabel">Load Transfer J</div>
+        <div id="jctrl" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ผลลัพธ์ label ══ -->
+<div style="margin:14px 12px 4px;font-size:9px;font-weight:700;letter-spacing:.12em;
+            text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;">
+  ผลลัพธ์ k_opt แต่ละความหนา
+  <span style="flex:1;height:1px;background:var(--border);display:block;"></span>
+</div>
+<div class="rcards" id="rcards"></div>
+
+<!-- ══ Summary ══ -->
+<div class="sum" id="sumbox"></div>
+
+<!-- ══ ปุ่มพิมพ์ ══ -->
+<div class="btn-print-wrap">
+  <button class="btn-print" onclick="window.print()">
+    🖨️ &nbsp;พิมพ์ / บันทึก PDF
+  </button>
+</div>
+
+<!-- ══ Guide ══ -->
+<div class="guide">
+  <div class="g-hdr">วิธีแปลผล</div>
+  <div class="g-row">
+    <div class="g-dot" style="background:var(--ok);"></div>
+    <div class="g-label" style="color:var(--ok);">✅ ผ่าน</div>
+    <div class="g-desc">k_actual ≥ k_opt → โครงสร้างชั้นทางเพียงพอสำหรับ W18 นี้</div>
+  </div>
+  <div class="g-row">
+    <div class="g-dot" style="background:var(--bad);"></div>
+    <div class="g-label" style="color:var(--bad);">❌ ไม่ผ่าน</div>
+    <div class="g-desc">k_actual &lt; k_opt → ต้องปรับปรุงชั้นรองรับ หรือเพิ่ม D</div>
+  </div>
+  <div class="g-row">
+    <div class="g-dot" style="background:var(--muted);"></div>
+    <div class="g-label" style="color:var(--muted);">— D บาง</div>
+    <div class="g-desc">k_opt &gt; 1000 pci → D นี้บางเกินไปสำหรับ W18 ที่กำหนด</div>
+  </div>
+  <div class="g-row" style="background:rgba(42,45,62,.3);">
+    <div class="g-desc" style="font-size:10px;line-height:1.7;">
+      <b style="color:var(--text);">k_opt</b> = ค่า k ต่ำสุดที่โครงสร้างต้องมีเพื่อรับ W18 ได้<br>
+      <b style="color:var(--text);">k_actual</b> = ค่า k ที่ประเมินได้จาก CBR → Nomograph<br>
+      <b style="color:var(--text);">+Δ</b> = margin ที่เหลือ (k_actual เกิน k_opt)
+    </div>
+  </div>
+</div>
+
+<!-- ══ PRINT ONLY SECTION ══ -->
+<div class="print-only" id="print-section"></div>
+
+<script>
+// ══════════════════════════════════════
+// ENGINE
+// ══════════════════════════════════════
+const EC = 3597075, SC = 600, SO = 0.35;
+const ZR_MAP = {80:-0.841, 85:-1.037, 90:-1.282};
+
+let mode='both', R=90, PT=2.5, Cd=1.0, jJPCP=2.8, jCRCP=2.6;
+
+function calcW18(d,j,k,cd,zr,pt){
+  const dpsi=4.5-pt;
+  const t1=zr*SO;
+  const t2=7.35*Math.log10(d+1)-0.06;
+  const t3=Math.log10(dpsi/3)/(1+1.624e7/Math.pow(d+1,8.46));
+  const dp=Math.pow(d,0.75);
+  const n4=SC*cd*(dp-1.132);
+  const d4=215.63*j*(dp-18.42/Math.pow(EC/k,0.25));
+  if(n4<=0||d4<=0) return null;
+  const inn=n4/d4;
+  if(inn<=0) return null;
+  return Math.pow(10,t1+t2+t3+(4.22-0.32*pt)*Math.log10(inn));
+}
+function findOptK(j,d,w18t,cd,zr,pt){
+  for(let k=50;k<=1000;k+=10){
+    const w=calcW18(d,j,k,cd,zr,pt);
+    if(w&&w>=w18t) return k;
+  }
+  return null;
+}
+
+// ══════════════════════════════════════
+// RENDER SCREEN
+// ══════════════════════════════════════
+const DL=[{d:10,cm:25},{d:11,cm:28},{d:12,cm:30},{d:13,cm:33},{d:14,cm:36}];
+
+function go(){
+  const w18v=parseFloat(document.getElementById('w18v').value);
+  const kav =parseFloat(document.getElementById('kav').value);
+  if(!w18v||w18v<=0) return;
+  const w18=w18v*1e6;
+  const ka=(kav>0)?kav:200;
+  const zr=ZR_MAP[R];
+  const sJ=mode==='jpcp'||mode==='both';
+  const sC=mode==='crcp'||mode==='both';
+  let html='';
+
+  DL.forEach(({d,cm})=>{
+    const kJ=sJ?findOptK(jJPCP,d,w18,Cd,zr,PT):null;
+    const kC=sC?findOptK(jCRCP,d,w18,Cd,zr,PT):null;
+    function verdict(kOpt){
+      if(kOpt===null) return{cls:'na',icon:'—',txt:'D บางเกินไป',diff:''};
+      const dv=ka-kOpt;
+      if(dv>=0) return{cls:'pass',icon:'✅',txt:'k_actual เพียงพอ',diff:`+${dv} pci`};
+      return{cls:'fail',icon:'❌',txt:`k_actual ไม่พอ (ขาด ${Math.abs(dv)} pci)`,diff:`${dv} pci`};
+    }
+    const vJ=verdict(kJ), vC=verdict(kC);
+    const anyPass=(sJ&&kJ!==null&&ka>=kJ)||(sC&&kC!==null&&ka>=kC);
+    const brd=anyPass?'ok-brd':'bad-brd';
+
+    function col(kOpt,color,label){
+      if(kOpt===undefined) return '';
+      return `<div class="rc-col">
+        <div class="rc-type" style="color:${color};">${label}</div>
+        ${kOpt!==null
+          ?`<div class="rc-knum" style="color:${color};">${kOpt}</div>
+            <div class="rc-unit">pci &nbsp;(k_opt ที่ต้องการ)</div>`
+          :`<div class="rc-knum na">k &gt; 1000 pci</div>`}
+      </div>`;
+    }
+
+    const jCol=sJ?col(kJ,'var(--jpcp)',`JPCP/JRCP  J=${jJPCP.toFixed(1)}`): '';
+    const cCol=sC?col(kC,'var(--crcp)',`CRCP  J=${jCRCP.toFixed(1)}`): '';
+    const bodyCls=(!sJ||!sC)?'rc-body single':'rc-body';
+    const vbJ=sJ?`<div class="vbar ${vJ.cls}"><span>${vJ.icon}</span><span>JPCP: ${vJ.txt}</span><span class="vdiff">${vJ.diff}</span></div>`:'';
+    const vbC=sC?`<div class="vbar ${vC.cls}"><span>${vC.icon}</span><span>CRCP: ${vC.txt}</span><span class="vdiff">${vC.diff}</span></div>`:'';
+
+    html+=`<div class="rcard ${brd}">
+      <div class="rc-hdr">
+        <span class="rc-d">${d} in</span>
+        <span class="rc-cm">${cm} ซม.</span>
+        <span class="rc-kact">k_actual = ${ka} pci</span>
+      </div>
+      <div class="${bodyCls}">${jCol}${cCol}</div>
+      ${vbJ}${vbC}
+    </div>`;
+  });
+
+  document.getElementById('rcards').innerHTML=html;
+  document.getElementById('sumbox').innerHTML=
+    `<b>W18</b> ${w18v.toFixed(1)} ล้าน ESAL &nbsp;·&nbsp;
+     <b>k_actual</b> ${ka} pci &nbsp;·&nbsp;
+     <b>R</b> ${R}% &nbsp;·&nbsp;
+     <b>PT</b> ${PT.toFixed(1)} &nbsp;·&nbsp;
+     <b>Cd</b> ${Cd.toFixed(2)}<br>
+     <b>Sc</b> 600 psi &nbsp;·&nbsp;
+     <b>Ec</b> 3,597,075 psi &nbsp;·&nbsp;
+     <b>So</b> 0.35`;
+
+  updatePrint();
+}
+
+// ══════════════════════════════════════
+// BUILD PRINT SECTION
+// ══════════════════════════════════════
+function updatePrint(){
+  const w18v =parseFloat(document.getElementById('w18v').value)||20;
+  const kav  =parseFloat(document.getElementById('kav').value)||200;
+  const proj =document.getElementById('projname').value||'(ไม่ระบุชื่อโครงการ)';
+  const w18  =w18v*1e6;
+  const ka   =kav;
+  const zr   =ZR_MAP[R];
+  const sJ   =mode==='jpcp'||mode==='both';
+  const sC   =mode==='crcp'||mode==='both';
+  const now  =new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+  const modeLabel={'both':'JPCP/JRCP และ CRCP','jpcp':'JPCP/JRCP','crcp':'CRCP'};
+
+  // header row ตาราง
+  let thJ=sJ?`<th>JPCP k_opt<br><small>J=${jJPCP.toFixed(1)}</small></th><th>JPCP verdict</th>`:'';
+  let thC=sC?`<th>CRCP k_opt<br><small>J=${jCRCP.toFixed(1)}</small></th><th>CRCP verdict</th>`:'';
+
+  // rows
+  let rows='';
+  DL.forEach(({d,cm})=>{
+    const kJ=sJ?findOptK(jJPCP,d,w18,Cd,zr,PT):null;
+    const kC=sC?findOptK(jCRCP,d,w18,Cd,zr,PT):null;
+    function vcell(kOpt){
+      if(kOpt===null) return{kstr:'> 1000',vcls:'na',vtxt:'D บางเกินไป'};
+      const dv=ka-kOpt;
+      if(dv>=0) return{kstr:`${kOpt}`,vcls:'pass',vtxt:`ผ่าน (+${dv})`};
+      return{kstr:`${kOpt}`,vcls:'fail',vtxt:`ไม่ผ่าน (ขาด ${Math.abs(dv)})`};
+    }
+    const vJ=sJ?vcell(kJ):null;
+    const vC=sC?vcell(kC):null;
+    const jTd=sJ?`<td class="kbig">${vJ.kstr} pci</td><td class="${vJ.vcls}">${vJ.vtxt}</td>`:'';
+    const cTd=sC?`<td class="kbig">${vC.kstr} pci</td><td class="${vC.vcls}">${vC.vtxt}</td>`:'';
+    rows+=`<tr><td><b>${d} in</b><br>${cm} ซม.</td>${jTd}${cTd}</tr>`;
+  });
+
+  const html=`
+    <!-- Print Header -->
+    <div class="p-hdr">
+      <div class="p-hdr-left">
+        <div class="p-logo">AASHTO 1993</div>
+        <div class="p-title">Rigid Pavement — k Optimum Analysis</div>
+        <div class="p-sub">การประเมินค่า k_opt เปรียบเทียบกับ k_actual · กรมทางหลวง D = 10–14 in</div>
+      </div>
+      <div class="p-hdr-right">
+        <div class="p-by">พัฒนาโดย</div>
+        <div class="p-name">รศ.ดร.อิทธิพล มีผล</div>
+        <div class="p-org">ภาควิชาครุศาสตร์โยธา<br>มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ</div>
+      </div>
+    </div>
+
+    <!-- Project -->
+    <div class="p-proj">
+      <div class="p-proj-label">ชื่อโครงการ</div>
+      <div class="p-proj-name">${proj}</div>
+    </div>
+
+    <!-- Parameters -->
+    <div class="p-sec-title">พารามิเตอร์การออกแบบ</div>
+    <div class="p-params">
+      <div class="p-param">
+        <div class="p-param-label">W18 ที่ต้องการ</div>
+        <div class="p-param-val">${w18v.toFixed(1)} M ESAL</div>
+      </div>
+      <div class="p-param">
+        <div class="p-param-label">k_actual</div>
+        <div class="p-param-val">${ka} pci</div>
+      </div>
+      <div class="p-param">
+        <div class="p-param-label">Reliability</div>
+        <div class="p-param-val">${R}%</div>
+      </div>
+      <div class="p-param">
+        <div class="p-param-label">Terminal PT</div>
+        <div class="p-param-val">${PT.toFixed(1)}</div>
+      </div>
+      <div class="p-param">
+        <div class="p-param-label">Drainage Cd</div>
+        <div class="p-param-val">${Cd.toFixed(2)}</div>
+      </div>
+      <div class="p-param">
+        <div class="p-param-label">Sc (MOR)</div>
+        <div class="p-param-val">600 psi</div>
+      </div>
+      <div class="p-param">
+        <div class="p-param-label">Ec</div>
+        <div class="p-param-val">3,597,075 psi</div>
+      </div>
+      <div class="p-param">
+        <div class="p-param-label">ประเภทผิวทาง</div>
+        <div class="p-param-val" style="font-size:10px;">${modeLabel[mode]}</div>
+      </div>
+    </div>
+
+    <!-- Result Table -->
+    <div class="p-sec-title">ผลการวิเคราะห์ k_opt เปรียบเทียบ k_actual = ${ka} pci</div>
+    <table class="p-table">
+      <thead>
+        <tr>
+          <th>ความหนา D</th>
+          ${thJ}${thC}
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+
+    <!-- Note -->
+    <div class="p-note">
+      <b>หมายเหตุ:</b><br>
+      • k_opt = ค่าสัมประสิทธิ์ปฏิกิริยาของชั้นดิน (Modulus of Subgrade Reaction) ต่ำสุดที่ต้องการ<br>
+      • k_actual = ค่า k จริงที่ประเมินได้จาก CBR → MR → Nomograph (AASHTO Fig. 3.3)<br>
+      • ✓ ผ่าน: k_actual ≥ k_opt — โครงสร้างชั้นทางเพียงพอ<br>
+      • ✗ ไม่ผ่าน: k_actual &lt; k_opt — ต้องปรับปรุงชั้นรองรับหรือเพิ่มความหนา D<br>
+      • อ้างอิง: AASHTO Guide for Design of Pavement Structures, 1993
+    </div>
+
+    <!-- Footer -->
+    <div class="p-footer">
+      <span>AASHTO 1993 Rigid Pavement k Optimum Tool · รศ.ดร.อิทธิพล มีผล · TTC-KMUTNB</span>
+      <span>วันที่ออกรายงาน: ${now}</span>
+    </div>`;
+
+  document.getElementById('print-section').innerHTML=html;
+}
+
+// ══════════════════════════════════════
+// J CONTROLS
+// ══════════════════════════════════════
+function renderJ(){
+  const sJ=mode==='jpcp'||mode==='both';
+  const sC=mode==='crcp'||mode==='both';
+  let h='';
+  if(sJ) h+=`<div><div style="font-size:9px;color:var(--muted);margin-bottom:4px;">JPCP/JRCP</div>
+    <div class="pills">${[2.5,2.6,2.7,2.8].map(v=>
+      `<div class="pill${v===jJPCP?' pb':''}" onclick="setJJ(${v})">${v.toFixed(1)}</div>`
+    ).join('')}</div></div>`;
+  if(sC) h+=`<div><div style="font-size:9px;color:var(--muted);margin-bottom:4px;">CRCP</div>
+    <div class="pills">${[2.3,2.4,2.5,2.6].map(v=>
+      `<div class="pill${v===jCRCP?' pg':''}" onclick="setJC(${v})">${v.toFixed(1)}</div>`
+    ).join('')}</div></div>`;
+  document.getElementById('jctrl').innerHTML=h;
+}
+
+// ══════════════════════════════════════
+// SETTERS
+// ══════════════════════════════════════
+function setMode(m){
+  mode=m;
+  ['both','jpcp','crcp'].forEach(id=>{
+    const el=document.getElementById(`btn-${id}`);
+    el.className='pill';
+    if(id===m) el.classList.add(m==='both'?'pa':m==='jpcp'?'pb':'pg');
+  });
+  renderJ(); go();
+}
+function setR(v){
+  R=v;
+  [80,85,90].forEach(r=>document.getElementById(`r${r}`).className='pill'+(r===v?' pa':''));
+  go();
+}
+function setPT(v){
+  PT=v;
+  [20,25].forEach(x=>document.getElementById(`pt${x}`).className='pill'+(x/10===v?' pa':''));
+  go();
+}
+function setCd(v){
+  Cd=v;
+  [10,11,12].forEach(x=>document.getElementById(`cd${x}`).className='pill'+(x/10===v?' pa':''));
+  go();
+}
+function setJJ(v){ jJPCP=v; renderJ(); go(); }
+function setJC(v){ jCRCP=v; renderJ(); go(); }
+
+window.addEventListener('load',()=>{ renderJ(); go(); });
+</script>
+</body>
+</html>
