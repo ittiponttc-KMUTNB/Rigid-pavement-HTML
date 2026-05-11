@@ -3,747 +3,1464 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>AASHTO 1993 — k Optimum</title>
+<title>Rigid Pavement Design — AASHTO 1993</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
-
-:root {
-  --bg:     #0f1117;
-  --card:   #1a1d27;
-  --border: #2a2d3e;
-  --accent: #f0b429;
-  --jpcp:   #38bdf8;
-  --crcp:   #4ade80;
-  --text:   #e2e8f0;
-  --muted:  #64748b;
-  --ok:     #4ade80;
-  --bad:    #f87171;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'IBM Plex Sans Thai', sans-serif;
-  background: var(--bg); color: var(--text);
-  min-height: 100vh; padding-bottom: 48px;
-}
-
-/* ══ HEADER ══ */
-.hdr {
-  background: var(--card);
-  border-bottom: 2px solid var(--accent);
-  padding: 8px 14px;
-  position: sticky; top: 0; z-index: 50;
-  display: flex; align-items: center; gap: 10px;
-}
-.logo {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9px; font-weight: 600;
-  letter-spacing: .14em; color: var(--accent);
-  border: 1px solid var(--accent);
-  padding: 3px 7px; border-radius: 3px;
-  white-space: nowrap; flex-shrink: 0;
-}
-.hdr-mid { flex: 1; min-width: 0; }
-.hdr-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hdr-sub   { font-size: 9px; color: var(--muted); margin-top: 1px; }
-.hdr-credit {
-  flex-shrink: 0; text-align: right;
-  border-left: 1px solid var(--border);
-  padding-left: 10px;
-}
-.hdr-by   { font-size: 8px; color: var(--muted); }
-.hdr-name { font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; }
-.hdr-org  { font-size: 8px; color: var(--muted); margin-top: 1px; white-space: nowrap; }
-
-/* ══ SECTION ══ */
-.sec {
-  margin: 10px 12px 0;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px; overflow: hidden;
-}
-.sec-hdr {
-  padding: 7px 14px;
-  font-size: 9px; font-weight: 700;
-  letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted);
-  background: rgba(42,45,62,0.7);
-  border-bottom: 1px solid var(--border);
-}
-.sec-body { padding: 11px 14px; }
-
-/* ชื่อโครงการ input */
-.proj-inp {
-  width: 100%;
-  background: var(--bg);
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  padding: 9px 12px;
-  color: var(--text);
-  font-family: 'IBM Plex Sans Thai', sans-serif;
-  font-size: 14px; font-weight: 500;
-  outline: none;
-}
-.proj-inp:focus { border-color: var(--accent); }
-.proj-inp::placeholder { color: var(--muted); font-size: 12px; }
-
-/* ══ PILLS ══ */
-.pills { display: flex; gap: 5px; flex-wrap: wrap; }
-.pill {
-  flex: 1; min-width: 52px;
-  padding: 8px 4px; text-align: center;
-  font-size: 12px; font-weight: 600;
-  border-radius: 7px; cursor: pointer;
-  border: 1.5px solid var(--border);
-  color: var(--muted); transition: all .12s;
-  user-select: none;
-  font-family: 'IBM Plex Sans Thai', sans-serif;
-}
-.pa { border-color:var(--accent); color:var(--accent); background:rgba(240,180,41,.1); }
-.pb { border-color:var(--jpcp);   color:var(--jpcp);   background:rgba(56,189,248,.1); }
-.pg { border-color:var(--crcp);   color:var(--crcp);   background:rgba(74,222,128,.1); }
-
-/* ══ NUMBER INPUT ══ */
-.num-inp {
-  display: flex; align-items: center; gap: 6px;
-  background: var(--bg);
-  border: 1.5px solid var(--border);
-  border-radius: 8px; padding: 8px 12px;
-}
-.num-inp:focus-within { border-color: var(--accent); }
-.num-inp input {
-  flex: 1; background: transparent;
-  border: none; outline: none;
-  color: var(--text);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 20px; font-weight: 700; width: 0;
-}
-.num-unit { font-size: 11px; color: var(--muted); white-space: nowrap; }
-
-/* 2-col param grid */
-.pgrid  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.pblock { display: flex; flex-direction: column; gap: 5px; }
-.plabel { font-size: 9px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
-
-/* ══ RESULT CARDS ══ */
-.rcards { display: flex; flex-direction: column; gap: 8px; margin: 10px 12px 0; }
-.rcard {
-  background: var(--card);
-  border: 1.5px solid var(--border);
-  border-radius: 12px; overflow: hidden;
-}
-.rcard.ok-brd  { border-color: rgba(74,222,128,.3); }
-.rcard.bad-brd { border-color: rgba(248,113,113,.3); }
-
-.rc-hdr {
-  display: flex; align-items: baseline;
-  padding: 7px 14px; gap: 8px;
-  background: rgba(42,45,62,0.5);
-  border-bottom: 1px solid var(--border);
-}
-.rc-d   { font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:700; }
-.rc-cm  { font-size:12px; color:var(--muted); }
-.rc-kact {
-  margin-left: auto;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px; font-weight: 600;
-  padding: 2px 8px; border-radius: 20px;
-  background: rgba(240,180,41,.12); color: var(--accent);
-}
-.rc-body { display: grid; grid-template-columns: 1fr 1fr; }
-.rc-body.single { grid-template-columns: 1fr; }
-.rc-col {
-  padding: 10px 14px;
-  display: flex; flex-direction: column; gap: 2px;
-  border-right: 1px solid var(--border);
-}
-.rc-col:last-child { border-right: none; }
-.rc-type  { font-size: 10px; font-weight: 600; margin-bottom: 3px; }
-.rc-knum  { font-family:'IBM Plex Mono',monospace; font-size:24px; font-weight:700; line-height:1; }
-.rc-knum.na { font-size:13px; color:var(--muted); padding-top:8px; }
-.rc-unit  { font-size:10px; color:var(--muted); margin-top:1px; }
-
-/* Verdict bar */
-.vbar {
-  display: flex; align-items: center; gap: 7px;
-  padding: 7px 14px;
-  border-top: 1px solid var(--border);
-  font-size: 11px; font-weight: 600;
-}
-.vbar.pass { background:rgba(74,222,128,.07);  color:var(--ok);  }
-.vbar.fail { background:rgba(248,113,113,.07); color:var(--bad); }
-.vbar.na   { background:rgba(100,116,139,.06); color:var(--muted); }
-.vdiff { margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10px; opacity:.75; }
-
-/* Summary */
-.sum {
-  margin: 10px 12px 0;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px; padding: 11px 14px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px; color: var(--muted); line-height: 1.8;
-}
-.sum b { color: var(--text); font-weight: 600; }
-
-/* Guide */
-.guide { margin:10px 12px 0; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
-.g-hdr {
-  padding: 7px 14px;
-  font-size: 9px; font-weight: 700; letter-spacing:.12em; text-transform:uppercase;
-  color: var(--muted); background:rgba(42,45,62,0.7); border-bottom:1px solid var(--border);
-}
-.g-row {
-  display:flex; align-items:flex-start; gap:10px;
-  padding:9px 14px; border-bottom:1px solid var(--border);
-  font-size:11px;
-}
-.g-row:last-child { border-bottom:none; }
-.g-dot   { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:2px; }
-.g-label { font-weight:700; min-width:60px; }
-.g-desc  { color:var(--muted); line-height:1.5; }
-
-/* ══ PRINT / PDF ══ */
-@media print {
-  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-
-  body { background:#fff; color:#000; font-family:'Sarabun',sans-serif; padding:0; }
-
-  /* ซ่อน UI ที่ไม่ต้องการ */
-  .hdr, .sec, .rcards, .sum, .guide, .btn-print-wrap { display:none; }
-
-  /* แสดงเฉพาะ print section */
-  .print-only { display:block !important; }
-
-  @page {
-    size: A4 portrait;
-    margin: 15mm 15mm 20mm 15mm;
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222636;
+    --border: #2e3348;
+    --accent: #f0c040;
+    --accent2: #4fc3f7;
+    --green: #66bb6a;
+    --red: #ef5350;
+    --orange: #ffa726;
+    --text: #e8eaf0;
+    --muted: #6b7194;
+    --label: #9ba3c8;
   }
-
-  /* ── Print Header ── */
-  .p-hdr {
-    border-bottom: 2px solid #333;
-    padding-bottom: 8px; margin-bottom: 12px;
-    display: flex; justify-content: space-between; align-items: flex-start;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 16px;
+    min-height: 100vh;
+    padding-bottom: 40px;
   }
-  .p-hdr-left .p-logo {
-    font-size: 9px; font-weight: 700; letter-spacing:.1em;
-    border: 1px solid #333; padding: 2px 6px; border-radius: 2px;
-    display: inline-block; margin-bottom: 4px;
+  .header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--accent);
+    padding: 14px 16px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
-  .p-hdr-left .p-title { font-size: 16px; font-weight: 700; }
-  .p-hdr-left .p-sub   { font-size: 10px; color: #555; margin-top: 2px; }
-  .p-hdr-right { text-align: right; }
-  .p-hdr-right .p-by   { font-size: 8px; color: #888; }
-  .p-hdr-right .p-name { font-size: 12px; font-weight: 700; color: #000; }
-  .p-hdr-right .p-org  { font-size: 9px; color: #555; margin-top: 2px; line-height:1.5; }
-
-  /* ── Project info ── */
-  .p-proj {
-    background: #f5f5f5; border: 1px solid #ccc;
-    border-radius: 4px; padding: 8px 12px; margin-bottom: 12px;
+  .header-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    font-weight: 600;
   }
-  .p-proj-label { font-size: 8px; color: #888; letter-spacing:.1em; text-transform:uppercase; }
-  .p-proj-name  { font-size: 14px; font-weight: 700; margin-top: 2px; }
-
-  /* ── Params box ── */
-  .p-params {
-    display: grid; grid-template-columns: repeat(4,1fr);
-    gap: 6px; margin-bottom: 12px;
+  .header-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    font-family: 'IBM Plex Mono', monospace;
   }
-  .p-param {
-    background: #f5f5f5; border: 1px solid #ddd;
-    border-radius: 3px; padding: 6px 8px; text-align: center;
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
   }
-  .p-param-label { font-size: 8px; color: #888; }
-  .p-param-val   { font-size: 13px; font-weight: 700; margin-top: 2px; }
-
-  /* ── Result table ── */
-  .p-sec-title {
-    font-size: 10px; font-weight: 700; letter-spacing:.1em;
-    text-transform: uppercase; color: #555;
-    border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 8px;
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 1;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    font-weight: 600;
   }
-  table.p-table {
-    width: 100%; border-collapse: collapse;
-    font-size: 11px; margin-bottom: 14px;
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .section { display: none; padding: 14px 14px 0; }
+  .section.active { display: block; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
   }
-  table.p-table th {
-    background: #333; color: #fff;
-    padding: 6px 10px; text-align: center;
-    font-size: 10px; font-weight: 600;
+  .card-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
   }
-  table.p-table td {
-    padding: 7px 10px; text-align: center;
-    border-bottom: 1px solid #e0e0e0;
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
   }
-  table.p-table tr:nth-child(even) td { background: #f9f9f9; }
-  table.p-table .pass { color: #16a34a; font-weight: 700; }
-  table.p-table .fail { color: #dc2626; font-weight: 700; }
-  table.p-table .na   { color: #888; }
-  table.p-table .kbig { font-size: 13px; font-weight: 700; }
-
-  /* ── Footer ── */
-  .p-footer {
-    position: fixed; bottom: 10mm; left: 15mm; right: 15mm;
-    border-top: 1px solid #ccc; padding-top: 5px;
-    display: flex; justify-content: space-between;
-    font-size: 8px; color: #888;
+  .input-row.single { grid-template-columns: 1fr; }
+  .field { display: flex; flex-direction: column; }
+  .field label {
+    font-size: 11px;
+    color: var(--label);
+    margin-bottom: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
   }
-
-  /* ── Note ── */
-  .p-note {
-    background: #f5f5f5; border-left: 3px solid #333;
-    padding: 8px 12px; font-size: 10px; color: #555;
-    line-height: 1.7; margin-bottom: 12px;
+  .field label .unit { color: var(--muted); font-weight: 400; }
+  .field input, .field select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 16px;
+    padding: 8px 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    width: 100%;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
   }
-}
-
-/* ซ่อน print-only ใน screen */
-.print-only { display: none; }
-
-/* ปุ่มพิมพ์ */
-.btn-print-wrap { margin: 14px 12px 0; }
-.btn-print {
-  width: 100%;
-  background: rgba(240,180,41,.1);
-  border: 1.5px solid var(--accent);
-  color: var(--accent);
-  padding: 11px; border-radius: 8px;
-  cursor: pointer; font-size: 13px; font-weight: 600;
-  font-family: 'IBM Plex Sans Thai', sans-serif;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.btn-print:active { background: rgba(240,180,41,.2); }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .field select option { background: var(--surface2); }
+  .field-locked { display: flex; flex-direction: column; }
+  .field-locked label {
+    font-size: 11px;
+    color: var(--label);
+    margin-bottom: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+  }
+  .locked-value {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 8px 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .locked-value .lock-icon { font-size: 10px; opacity: 0.6; }
+  .hint {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .cbr-result {
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--accent2);
+    margin-top: 4px;
+  }
+  .btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+    padding: 7px 14px;
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .btn:active { opacity: 0.7; }
+  .btn.accent { background: var(--accent); color: #000; border-color: var(--accent); }
+  .btn.pdf-btn { background: var(--surface2); border-color: var(--accent2); color: var(--accent2); }
+  /* D provide big input */
+  .d-provide-field label {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    font-family: 'IBM Plex Mono', monospace;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .d-provide-field input {
+    font-size: 26px !important;
+    font-weight: 700;
+    color: var(--accent) !important;
+    border: 2px solid var(--accent) !important;
+    border-radius: 8px;
+    padding: 10px 14px !important;
+    background: rgba(240,192,64,0.06) !important;
+    text-align: center;
+    width: 100%;
+    font-family: 'IBM Plex Mono', monospace;
+    -webkit-appearance: none;
+  }
+  .d-provide-field input:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(240,192,64,0.15);
+    outline: none;
+  }
+  /* Layer */
+  .layer-controls { display: flex; gap: 8px; margin-bottom: 12px; }
+  .layer-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+  .layer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .layer-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--border);
+    color: var(--accent);
+  }
+  .layer-delete {
+    background: none;
+    border: none;
+    color: var(--red);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+  }
+  /* Results */
+  .result-box {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--muted);
+  }
+  .result-box.pass { border-left-color: var(--green); }
+  .result-box.fail { border-left-color: var(--red); }
+  .result-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .result-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+  .status-badge.pass { background: rgba(102,187,106,0.15); color: var(--green); border: 1px solid var(--green); }
+  .status-badge.fail { background: rgba(239,83,80,0.15); color: var(--red); border: 1px solid var(--red); }
+  .info-table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+  .info-table tr { border-bottom: 1px solid var(--border); }
+  .info-table tr:last-child { border-bottom: none; }
+  .info-table td {
+    padding: 7px 4px;
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .info-table td:first-child { color: var(--label); }
+  .info-table td:last-child { text-align: right; color: var(--text); font-weight: 600; }
+  .empty { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 13px; }
+  .empty .icon { font-size: 32px; margin-bottom: 8px; }
+  .formula-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-top: 8px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .formula-block .hl { color: var(--accent2); }
+  .ref-table { width: 100%; border-collapse: collapse; }
+  .ref-table th {
+    background: var(--border);
+    padding: 6px 8px;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--accent);
+    text-align: left;
+  }
+  .ref-table td {
+    padding: 6px 8px;
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .ref-table tr:last-child td { border-bottom: none; }
+  .ref-table tr.highlight td { color: var(--accent); background: rgba(240,192,64,0.06); }
+  .project-banner {
+    background: rgba(240,192,64,0.08);
+    border: 1px solid rgba(240,192,64,0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .project-banner .proj-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .project-banner .proj-name { font-size: 15px; color: var(--accent); font-weight: 600; margin-top: 2px; }
+  .footnote {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    text-align: center;
+    margin-top: 16px;
+    padding: 0 14px;
+  }
+  .warn-note {
+    background: rgba(255,167,38,0.10);
+    border: 1px solid var(--orange);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 11px;
+    color: var(--orange);
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 10px;
+  }
 </style>
 </head>
 <body>
 
-<!-- ══ SCREEN: Header ══ -->
-<div class="hdr">
-  <div class="logo">AASHTO 1993</div>
-  <div class="hdr-mid">
-    <div class="hdr-title">Rigid Pavement — k Optimum</div>
-    <div class="hdr-sub">k_opt vs k_actual · D = 10–14 in</div>
-  </div>
-  <div class="hdr-credit">
-    <div class="hdr-by">พัฒนาโดย</div>
-    <div class="hdr-name">รศ.ดร.อิทธิพล มีผล</div>
-    <div class="hdr-org">TTC · KMUTNB</div>
-  </div>
-</div>
-
-<!-- ══ ชื่อโครงการ ══ -->
-<div class="sec">
-  <div class="sec-hdr">ชื่อโครงการ</div>
-  <div class="sec-body">
-    <input class="proj-inp" type="text" id="projname"
-           placeholder="กรอกชื่อโครงการ เช่น ทางหลวงหมายเลข 1 ช่วง กม.0+000 – กม.5+000"
-           oninput="updatePrint()">
-  </div>
-</div>
-
-<!-- ══ ประเภทผิวทาง ══ -->
-<div class="sec">
-  <div class="sec-hdr">ประเภทผิวทาง</div>
-  <div class="sec-body">
-    <div class="pills">
-      <div class="pill pa" id="btn-both" onclick="setMode('both')">ทั้งคู่</div>
-      <div class="pill"   id="btn-jpcp" onclick="setMode('jpcp')">JPCP/JRCP</div>
-      <div class="pill"   id="btn-crcp" onclick="setMode('crcp')">CRCP</div>
+<!-- HEADER -->
+<div class="header">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <div class="header-title">▪ RIGID PAVEMENT DESIGN</div>
+      <div class="header-sub">AASHTO 1993 · PCC Slab · Mobile Edition</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;flex-shrink:0;margin-left:8px">
+      <div style="background:#fff;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;color:#1a1d27;font-family:'IBM Plex Mono',monospace;letter-spacing:-0.5px;line-height:1">TTC</div>
+      <div style="text-align:right;font-family:'Sarabun',sans-serif;font-size:10px;color:var(--muted);line-height:1.5">
+        พัฒนาโดย<br>
+        <span style="color:var(--accent);font-weight:600">รศ.ดร.อิทธิพล มีพล</span><br>
+        <span style="font-size:9px">TTC · KMUTNB</span>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ══ W18 ══ -->
-<div class="sec">
-  <div class="sec-hdr">W18 ที่ต้องการ</div>
-  <div class="sec-body">
-    <div class="num-inp">
-      <input type="number" id="w18v" value="20" min="0.5" max="500" step="0.5"
-             inputmode="decimal" oninput="go()">
-      <span class="num-unit">ล้าน ESAL</span>
-    </div>
-  </div>
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('input')">① Design Input</div>
+  <div class="tab"        onclick="showTab('concrete')">② Concrete</div>
+  <div class="tab"        onclick="showTab('layers')">③ Layers</div>
+  <div class="tab"        onclick="showTab('result')">④ Results</div>
+  <div class="tab"        onclick="showTab('ref')">⑤ Reference</div>
 </div>
 
-<!-- ══ k_actual ══ -->
-<div class="sec">
-  <div class="sec-hdr">k_actual — ค่า k จริงจากโครงสร้างชั้นทาง</div>
-  <div class="sec-body">
-    <div class="num-inp">
-      <input type="number" id="kav" value="200" min="50" max="1000" step="10"
-             inputmode="decimal" oninput="go()">
-      <span class="num-unit">pci</span>
-    </div>
-    <div style="font-size:10px;color:var(--muted);margin-top:6px;">
-      ประเมินจาก CBR → MR → Nomograph AASHTO Fig.3.3
+<!-- ══════════════════════════════════
+     TAB 1 : DESIGN INPUT
+══════════════════════════════════ -->
+<div class="section active" id="tab-input">
+
+  <div class="card">
+    <div class="card-title">Project</div>
+    <div class="input-row single">
+      <div class="field">
+        <label>Project Name</label>
+        <input type="text" id="projectName" placeholder="กรอกชื่อโครงการ" oninput="calc()">
+      </div>
     </div>
   </div>
-</div>
 
-<!-- ══ พารามิเตอร์ ══ -->
-<div class="sec">
-  <div class="sec-hdr">พารามิเตอร์การออกแบบ</div>
-  <div class="sec-body" style="display:flex;flex-direction:column;gap:14px;">
-    <div class="pgrid">
-      <div class="pblock">
-        <div class="plabel">Reliability (R)</div>
-        <div class="pills">
-          <div class="pill" id="r80" onclick="setR(80)">80%</div>
-          <div class="pill" id="r85" onclick="setR(85)">85%</div>
-          <div class="pill pa" id="r90" onclick="setR(90)">90%</div>
+  <div class="card">
+    <div class="card-title">Traffic Loading</div>
+    <div class="input-row single">
+      <div class="field">
+        <label>W18 <span class="unit">(ล้าน ESAL)</span></label>
+        <input type="number" id="W18" value="2.5" step="0.1" min="0.01" oninput="calc()">
+        <div class="hint">Design period accumulated 18-kip ESAL</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Subgrade — k Value</div>
+    <div class="input-row single">
+      <div class="field">
+        <label>วิธีกำหนด k</label>
+        <select id="kMode" onchange="updateKMode()">
+          <option value="cbr">CBR → MR → k (อัตโนมัติ)</option>
+          <option value="direct">กรอก k โดยตรง (pci)</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="kCbrBlock">
+      <div class="input-row">
+        <div class="field">
+          <label>CBR <span class="unit">(%)</span></label>
+          <input type="number" id="CBR" value="5" step="0.5" min="1" max="100" oninput="updateK()">
+        </div>
+        <div class="field">
+          <label>MR Method</label>
+          <select id="mrMethod" onchange="updateK()">
+            <option value="aashto">AASHTO: 1500×CBR</option>
+            <option value="powell">Powell: 2555×CBR^0.64</option>
+          </select>
         </div>
       </div>
-      <div class="pblock">
-        <div class="plabel">Terminal PT</div>
-        <div class="pills">
-          <div class="pill" id="pt20" onclick="setPT(2.0)">2.0</div>
-          <div class="pill pa" id="pt25" onclick="setPT(2.5)">2.5</div>
+      <div class="cbr-result" id="mrDisplay">MR = 7,500 psi</div>
+    </div>
+
+    <div id="kDirectBlock" style="display:none">
+      <div class="input-row single">
+        <div class="field">
+          <label>k <span class="unit">(pci)</span></label>
+          <input type="number" id="k_direct" value="100" step="10" min="25" max="1000" oninput="updateK()">
+          <div class="hint">ค่าทั่วไป: ดินเหนียว 25–75 · ดินทราย 50–150 · หินคลุก 100–300 pci</div>
         </div>
       </div>
     </div>
-    <div class="pgrid">
-      <div class="pblock">
-        <div class="plabel">Drainage Cd</div>
-        <div class="pills">
-          <div class="pill pa" id="cd10" onclick="setCd(1.0)">1.00</div>
-          <div class="pill"   id="cd11" onclick="setCd(1.1)">1.10</div>
-          <div class="pill"   id="cd12" onclick="setCd(1.2)">1.20</div>
-        </div>
+
+    <div class="cbr-result" id="kDisplay" style="margin-top:6px">k = 38.7 pci</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Reliability &amp; Variance</div>
+    <div class="input-row">
+      <div class="field">
+        <label>Reliability R <span class="unit">(%)</span></label>
+        <select id="R" onchange="updateZR()">
+          <option value="50">50%</option>
+          <option value="75">75%</option>
+          <option value="80">80%</option>
+          <option value="85">85%</option>
+          <option value="90" selected>90%</option>
+          <option value="95">95%</option>
+          <option value="99">99%</option>
+        </select>
       </div>
-      <div class="pblock">
-        <div class="plabel">Load Transfer J</div>
-        <div id="jctrl" style="display:flex;flex-direction:column;gap:6px;"></div>
+      <div class="field-locked">
+        <label>ZR <span style="color:var(--muted);font-weight:400">(auto)</span></label>
+        <div class="locked-value"><span class="lock-icon">🔒</span><span id="ZR_display">-1.282</span></div>
       </div>
     </div>
+    <div class="input-row">
+      <div class="field-locked">
+        <label>So <span style="color:var(--muted);font-weight:400">(fixed, Rigid)</span></label>
+        <div class="locked-value"><span class="lock-icon">🔒</span>0.35</div>
+      </div>
+      <div class="field-locked">
+        <label>p<sub>i</sub> <span style="color:var(--muted);font-weight:400">(fixed, Rigid)</span></label>
+        <div class="locked-value"><span class="lock-icon">🔒</span>4.5</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Serviceability Loss</div>
+    <div class="input-row">
+      <div class="field-locked">
+        <label>p<sub>i</sub> — Initial PSI</label>
+        <div class="locked-value" style="font-size:16px;color:var(--text);justify-content:center"><span class="lock-icon">🔒</span>4.5</div>
+      </div>
+      <div class="field">
+        <label>p<sub>t</sub> — Terminal PSI</label>
+        <select id="pt" onchange="calc()">
+          <option value="2.0">2.0 — ถนนรอง</option>
+          <option value="2.5" selected>2.5 — ทางหลวง ✓</option>
+          <option value="3.0">3.0 — ทางหลวงสำคัญ</option>
+        </select>
+      </div>
+    </div>
+    <div class="cbr-result" id="dpsiDisplay">ΔPSI = 2.00</div>
+  </div>
+
+  <div style="text-align:center;padding:6px 0 14px">
+    <button class="btn accent" onclick="showTab('concrete')">ถัดไป: Concrete Properties →</button>
   </div>
 </div>
 
-<!-- ══ ผลลัพธ์ label ══ -->
-<div style="margin:14px 12px 4px;font-size:9px;font-weight:700;letter-spacing:.12em;
-            text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;">
-  ผลลัพธ์ k_opt แต่ละความหนา
-  <span style="flex:1;height:1px;background:var(--border);display:block;"></span>
+<!-- ══════════════════════════════════
+     TAB 2 : CONCRETE PROPERTIES
+══════════════════════════════════ -->
+<div class="section" id="tab-concrete">
+
+  <div class="card">
+    <div class="card-title">Concrete Properties — PCC (คงที่ตาม ทล.)</div>
+    <div class="input-row">
+      <div class="field-locked">
+        <label>E<sub>c</sub> <span style="color:var(--muted);font-weight:400">(fixed)</span></label>
+        <div class="locked-value" style="font-size:12px"><span class="lock-icon">🔒</span>3,597,075 psi</div>
+      </div>
+      <div class="field-locked">
+        <label>S<sub>c</sub>' MOR <span style="color:var(--muted);font-weight:400">(fixed)</span></label>
+        <div class="locked-value" style="font-size:12px"><span class="lock-icon">🔒</span>600 psi</div>
+      </div>
+    </div>
+    <div class="hint">Ec: คอนกรีต 350 ksc (cube) · Sc': Modulus of Rupture สูงสุดตาม ทล.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Pavement Type &amp; J Factor</div>
+    <div class="input-row single">
+      <div class="field">
+        <label>ประเภทผิวคอนกรีต</label>
+        <select id="pavType" onchange="updateJRange()">
+          <option value="jpcp">JPCP / JRCP (มีรอยต่อ)</option>
+          <option value="crcp">CRCP (เสริมเหล็กต่อเนื่อง)</option>
+        </select>
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="field">
+        <label>J — Load Transfer Coeff.</label>
+        <select id="J" onchange="calc()">
+          <!-- injected by JS -->
+        </select>
+        <div class="hint" id="jHint">JPCP/JRCP: 2.5–2.8 (default 2.8)</div>
+      </div>
+      <div class="field">
+        <label>C<sub>d</sub> — Drainage Coeff.</label>
+        <select id="Cd" onchange="calc()">
+          <option value="1.0" selected>1.0 — ทั่วไป (default)</option>
+          <option value="1.1">1.1 — ระบายน้ำดี</option>
+          <option value="1.2">1.2 — ระบายน้ำดีมาก</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">D Slab — ความหนาแผ่นคอนกรีตที่กำหนด</div>
+    <div class="input-row single">
+      <div class="field">
+        <label>D ที่กำหนด <span class="unit">(มาตรฐาน ทล.)</span></label>
+        <select id="D_select" onchange="updateDProvide()">
+          <option value="10">10 in = 25 cm</option>
+          <option value="11">11 in = 28 cm</option>
+          <option value="12">12 in = 30 cm</option>
+          <option value="13">13 in = 32 cm</option>
+          <option value="14">14 in = 35 cm</option>
+          <option value="custom">Custom (กรอกเอง)</option>
+        </select>
+      </div>
+    </div>
+    <div id="dCustomBlock" style="display:none" class="input-row single">
+      <div class="field">
+        <label>D Custom <span class="unit">(inches)</span></label>
+        <input type="number" id="D_custom" value="10.0" step="0.5" min="2" max="30" oninput="updateDProvide()">
+      </div>
+    </div>
+    <div class="cbr-result" id="dProvideDisplay" style="margin-top:6px;color:var(--accent)">D = 10.000 in = 25.00 cm (ทล. 25 cm)</div>
+    <div class="hint" style="margin-top:4px">ทล. กำหนด: 10→25, 11→28, 12→30, 13→32, 14→35 cm · ดู D Required ได้ที่ Tab ④</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Loss of Support (LS) — ปรับแก้ k</div>
+    <div class="input-row single">
+      <div class="field">
+        <label>LS — Loss of Support Factor</label>
+        <select id="LS" onchange="updateLS()">
+          <option value="0.0">0.0 — Treated Base (CTB/ATB) — ไม่ลด k</option>
+          <option value="1.0" selected>1.0 — Granular Base (default ทล.)</option>
+          <option value="2.0">2.0 — Unbound / Fine-grained</option>
+          <option value="3.0">3.0 — ไม่มี Subbase / Soil อ่อน</option>
+        </select>
+      </div>
+    </div>
+    <div class="cbr-result" id="lsDisplay" style="margin-top:6px">
+      k∞ = 38.7 pci &nbsp;→&nbsp; k design = 38.7 pci (LS=0.0)
+    </div>
+    <div class="hint" style="margin-top:4px">
+      log-log interpolation จาก Digitized AASHTO 1993 Fig. 3.4 · k design ใช้ในสมการออกแบบ
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:6px 0 14px">
+    <button class="btn accent" onclick="showTab('layers')">ถัดไป: Base/Subbase Layers →</button>
+  </div>
 </div>
-<div class="rcards" id="rcards"></div>
 
-<!-- ══ Summary ══ -->
-<div class="sum" id="sumbox"></div>
+<!-- ══════════════════════════════════
+     TAB 3 : BASE / SUBBASE LAYERS
+══════════════════════════════════ -->
+<div class="section" id="tab-layers">
 
-<!-- ══ ปุ่มพิมพ์ ══ -->
-<div class="btn-print-wrap">
-  <button class="btn-print" onclick="window.print()">
-    🖨️ &nbsp;พิมพ์ / บันทึก PDF
-  </button>
-</div>
-
-<!-- ══ Guide ══ -->
-<div class="guide">
-  <div class="g-hdr">วิธีแปลผล</div>
-  <div class="g-row">
-    <div class="g-dot" style="background:var(--ok);"></div>
-    <div class="g-label" style="color:var(--ok);">✅ ผ่าน</div>
-    <div class="g-desc">k_actual ≥ k_opt → โครงสร้างชั้นทางเพียงพอสำหรับ W18 นี้</div>
-  </div>
-  <div class="g-row">
-    <div class="g-dot" style="background:var(--bad);"></div>
-    <div class="g-label" style="color:var(--bad);">❌ ไม่ผ่าน</div>
-    <div class="g-desc">k_actual &lt; k_opt → ต้องปรับปรุงชั้นรองรับ หรือเพิ่ม D</div>
-  </div>
-  <div class="g-row">
-    <div class="g-dot" style="background:var(--muted);"></div>
-    <div class="g-label" style="color:var(--muted);">— D บาง</div>
-    <div class="g-desc">k_opt &gt; 1000 pci → D นี้บางเกินไปสำหรับ W18 ที่กำหนด</div>
-  </div>
-  <div class="g-row" style="background:rgba(42,45,62,.3);">
-    <div class="g-desc" style="font-size:10px;line-height:1.7;">
-      <b style="color:var(--text);">k_opt</b> = ค่า k ต่ำสุดที่โครงสร้างต้องมีเพื่อรับ W18 ได้<br>
-      <b style="color:var(--text);">k_actual</b> = ค่า k ที่ประเมินได้จาก CBR → Nomograph<br>
-      <b style="color:var(--text);">+Δ</b> = margin ที่เหลือ (k_actual เกิน k_opt)
+  <div class="card">
+    <div class="card-title">Base / Subbase Configuration</div>
+    <div class="warn-note">⚠ Layers เหล่านี้ไม่กระทบการคำนวณ D (Rigid ใช้ k ของ Subgrade) — บันทึกสำหรับรายงานเท่านั้น</div>
+    <div class="layer-controls">
+      <button class="btn accent" onclick="addLayer()">+ เพิ่มชั้น</button>
+      <button class="btn" onclick="loadPreset()">โครงสร้างมาตรฐาน</button>
+    </div>
+    <div id="layerList"></div>
+    <div id="layerEmpty" class="empty">
+      <div class="icon">📋</div>
+      กดปุ่ม "เพิ่มชั้น" หรือ "โครงสร้างมาตรฐาน"
     </div>
   </div>
-</div>
 
-<!-- ══ PRINT ONLY SECTION ══ -->
-<div class="print-only" id="print-section"></div>
-
-<script>
-// ══════════════════════════════════════
-// ENGINE
-// ══════════════════════════════════════
-const EC = 3597075, SC = 600, SO = 0.35;
-const ZR_MAP = {80:-0.841, 85:-1.037, 90:-1.282};
-
-let mode='both', R=90, PT=2.5, Cd=1.0, jJPCP=2.8, jCRCP=2.6;
-
-function calcW18(d,j,k,cd,zr,pt){
-  const dpsi=4.5-pt;
-  const t1=zr*SO;
-  const t2=7.35*Math.log10(d+1)-0.06;
-  const t3=Math.log10(dpsi/3)/(1+1.624e7/Math.pow(d+1,8.46));
-  const dp=Math.pow(d,0.75);
-  const n4=SC*cd*(dp-1.132);
-  const d4=215.63*j*(dp-18.42/Math.pow(EC/k,0.25));
-  if(n4<=0||d4<=0) return null;
-  const inn=n4/d4;
-  if(inn<=0) return null;
-  return Math.pow(10,t1+t2+t3+(4.22-0.32*pt)*Math.log10(inn));
-}
-function findOptK(j,d,w18t,cd,zr,pt){
-  for(let k=50;k<=1000;k+=10){
-    const w=calcW18(d,j,k,cd,zr,pt);
-    if(w&&w>=w18t) return k;
-  }
-  return null;
-}
-
-// ══════════════════════════════════════
-// RENDER SCREEN
-// ══════════════════════════════════════
-const DL=[{d:10,cm:25},{d:11,cm:28},{d:12,cm:30},{d:13,cm:33},{d:14,cm:36}];
-
-function go(){
-  const w18v=parseFloat(document.getElementById('w18v').value);
-  const kav =parseFloat(document.getElementById('kav').value);
-  if(!w18v||w18v<=0) return;
-  const w18=w18v*1e6;
-  const ka=(kav>0)?kav:200;
-  const zr=ZR_MAP[R];
-  const sJ=mode==='jpcp'||mode==='both';
-  const sC=mode==='crcp'||mode==='both';
-  let html='';
-
-  DL.forEach(({d,cm})=>{
-    const kJ=sJ?findOptK(jJPCP,d,w18,Cd,zr,PT):null;
-    const kC=sC?findOptK(jCRCP,d,w18,Cd,zr,PT):null;
-    function verdict(kOpt){
-      if(kOpt===null) return{cls:'na',icon:'—',txt:'D บางเกินไป',diff:''};
-      const dv=ka-kOpt;
-      if(dv>=0) return{cls:'pass',icon:'✅',txt:'k_actual เพียงพอ',diff:`+${dv} pci`};
-      return{cls:'fail',icon:'❌',txt:`k_actual ไม่พอ (ขาด ${Math.abs(dv)} pci)`,diff:`${dv} pci`};
-    }
-    const vJ=verdict(kJ), vC=verdict(kC);
-    const anyPass=(sJ&&kJ!==null&&ka>=kJ)||(sC&&kC!==null&&ka>=kC);
-    const brd=anyPass?'ok-brd':'bad-brd';
-
-    function col(kOpt,color,label){
-      if(kOpt===undefined) return '';
-      return `<div class="rc-col">
-        <div class="rc-type" style="color:${color};">${label}</div>
-        ${kOpt!==null
-          ?`<div class="rc-knum" style="color:${color};">${kOpt}</div>
-            <div class="rc-unit">pci &nbsp;(k_opt ที่ต้องการ)</div>`
-          :`<div class="rc-knum na">k &gt; 1000 pci</div>`}
-      </div>`;
-    }
-
-    const jCol=sJ?col(kJ,'var(--jpcp)',`JPCP/JRCP  J=${jJPCP.toFixed(1)}`): '';
-    const cCol=sC?col(kC,'var(--crcp)',`CRCP  J=${jCRCP.toFixed(1)}`): '';
-    const bodyCls=(!sJ||!sC)?'rc-body single':'rc-body';
-    const vbJ=sJ?`<div class="vbar ${vJ.cls}"><span>${vJ.icon}</span><span>JPCP: ${vJ.txt}</span><span class="vdiff">${vJ.diff}</span></div>`:'';
-    const vbC=sC?`<div class="vbar ${vC.cls}"><span>${vC.icon}</span><span>CRCP: ${vC.txt}</span><span class="vdiff">${vC.diff}</span></div>`:'';
-
-    html+=`<div class="rcard ${brd}">
-      <div class="rc-hdr">
-        <span class="rc-d">${d} in</span>
-        <span class="rc-cm">${cm} ซม.</span>
-        <span class="rc-kact">k_actual = ${ka} pci</span>
-      </div>
-      <div class="${bodyCls}">${jCol}${cCol}</div>
-      ${vbJ}${vbC}
-    </div>`;
-  });
-
-  document.getElementById('rcards').innerHTML=html;
-  document.getElementById('sumbox').innerHTML=
-    `<b>W18</b> ${w18v.toFixed(1)} ล้าน ESAL &nbsp;·&nbsp;
-     <b>k_actual</b> ${ka} pci &nbsp;·&nbsp;
-     <b>R</b> ${R}% &nbsp;·&nbsp;
-     <b>PT</b> ${PT.toFixed(1)} &nbsp;·&nbsp;
-     <b>Cd</b> ${Cd.toFixed(2)}<br>
-     <b>Sc</b> 600 psi &nbsp;·&nbsp;
-     <b>Ec</b> 3,597,075 psi &nbsp;·&nbsp;
-     <b>So</b> 0.35`;
-
-  updatePrint();
-}
-
-// ══════════════════════════════════════
-// BUILD PRINT SECTION
-// ══════════════════════════════════════
-function updatePrint(){
-  const w18v =parseFloat(document.getElementById('w18v').value)||20;
-  const kav  =parseFloat(document.getElementById('kav').value)||200;
-  const proj =document.getElementById('projname').value||'(ไม่ระบุชื่อโครงการ)';
-  const w18  =w18v*1e6;
-  const ka   =kav;
-  const zr   =ZR_MAP[R];
-  const sJ   =mode==='jpcp'||mode==='both';
-  const sC   =mode==='crcp'||mode==='both';
-  const now  =new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-  const modeLabel={'both':'JPCP/JRCP และ CRCP','jpcp':'JPCP/JRCP','crcp':'CRCP'};
-
-  // header row ตาราง
-  let thJ=sJ?`<th>JPCP k_opt<br><small>J=${jJPCP.toFixed(1)}</small></th><th>JPCP verdict</th>`:'';
-  let thC=sC?`<th>CRCP k_opt<br><small>J=${jCRCP.toFixed(1)}</small></th><th>CRCP verdict</th>`:'';
-
-  // rows
-  let rows='';
-  DL.forEach(({d,cm})=>{
-    const kJ=sJ?findOptK(jJPCP,d,w18,Cd,zr,PT):null;
-    const kC=sC?findOptK(jCRCP,d,w18,Cd,zr,PT):null;
-    function vcell(kOpt){
-      if(kOpt===null) return{kstr:'> 1000',vcls:'na',vtxt:'D บางเกินไป'};
-      const dv=ka-kOpt;
-      if(dv>=0) return{kstr:`${kOpt}`,vcls:'pass',vtxt:`ผ่าน (+${dv})`};
-      return{kstr:`${kOpt}`,vcls:'fail',vtxt:`ไม่ผ่าน (ขาด ${Math.abs(dv)})`};
-    }
-    const vJ=sJ?vcell(kJ):null;
-    const vC=sC?vcell(kC):null;
-    const jTd=sJ?`<td class="kbig">${vJ.kstr} pci</td><td class="${vJ.vcls}">${vJ.vtxt}</td>`:'';
-    const cTd=sC?`<td class="kbig">${vC.kstr} pci</td><td class="${vC.vcls}">${vC.vtxt}</td>`:'';
-    rows+=`<tr><td><b>${d} in</b><br>${cm} ซม.</td>${jTd}${cTd}</tr>`;
-  });
-
-  const html=`
-    <!-- Print Header -->
-    <div class="p-hdr">
-      <div class="p-hdr-left">
-        <div class="p-logo">AASHTO 1993</div>
-        <div class="p-title">Rigid Pavement — k Optimum Analysis</div>
-        <div class="p-sub">การประเมินค่า k_opt เปรียบเทียบกับ k_actual · กรมทางหลวง D = 10–14 in</div>
-      </div>
-      <div class="p-hdr-right">
-        <div class="p-by">พัฒนาโดย</div>
-        <div class="p-name">รศ.ดร.อิทธิพล มีผล</div>
-        <div class="p-org">ภาควิชาครุศาสตร์โยธา<br>มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ</div>
-      </div>
-    </div>
-
-    <!-- Project -->
-    <div class="p-proj">
-      <div class="p-proj-label">ชื่อโครงการ</div>
-      <div class="p-proj-name">${proj}</div>
-    </div>
-
-    <!-- Parameters -->
-    <div class="p-sec-title">พารามิเตอร์การออกแบบ</div>
-    <div class="p-params">
-      <div class="p-param">
-        <div class="p-param-label">W18 ที่ต้องการ</div>
-        <div class="p-param-val">${w18v.toFixed(1)} M ESAL</div>
-      </div>
-      <div class="p-param">
-        <div class="p-param-label">k_actual</div>
-        <div class="p-param-val">${ka} pci</div>
-      </div>
-      <div class="p-param">
-        <div class="p-param-label">Reliability</div>
-        <div class="p-param-val">${R}%</div>
-      </div>
-      <div class="p-param">
-        <div class="p-param-label">Terminal PT</div>
-        <div class="p-param-val">${PT.toFixed(1)}</div>
-      </div>
-      <div class="p-param">
-        <div class="p-param-label">Drainage Cd</div>
-        <div class="p-param-val">${Cd.toFixed(2)}</div>
-      </div>
-      <div class="p-param">
-        <div class="p-param-label">Sc (MOR)</div>
-        <div class="p-param-val">600 psi</div>
-      </div>
-      <div class="p-param">
-        <div class="p-param-label">Ec</div>
-        <div class="p-param-val">3,597,075 psi</div>
-      </div>
-      <div class="p-param">
-        <div class="p-param-label">ประเภทผิวทาง</div>
-        <div class="p-param-val" style="font-size:10px;">${modeLabel[mode]}</div>
-      </div>
-    </div>
-
-    <!-- Result Table -->
-    <div class="p-sec-title">ผลการวิเคราะห์ k_opt เปรียบเทียบ k_actual = ${ka} pci</div>
-    <table class="p-table">
-      <thead>
-        <tr>
-          <th>ความหนา D</th>
-          ${thJ}${thC}
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
+  <div class="card">
+    <div class="card-title">ฐานข้อมูลวัสดุ (มาตรฐาน ทล.) — Rigid</div>
+    <table class="ref-table">
+      <tr><th>วัสดุ</th><th>E (MPa)</th></tr>
+      <tr><td>รองผิวคอนกรีตด้วย AC</td><td>2,500</td></tr>
+      <tr><td>CTB (หินคลุกปรับปรุงด้วยปูนซีเมนต์)</td><td>1,200</td></tr>
+      <tr><td>หินคลุกผสมซีเมนต์ UCS 24.5 ksc.</td><td>850</td></tr>
+      <tr><td>หินคลุก CBR 80%</td><td>350</td></tr>
+      <tr><td>ดินซีเมนต์ UCS 17.5 ksc.</td><td>350</td></tr>
+      <tr><td>วัสดุหมุนเวียน (Recycling)</td><td>850</td></tr>
+      <tr><td>วัสดุมวลรวม CBR 25%</td><td>150</td></tr>
+      <tr><td>วัสดุคัดเลือก ก</td><td>100</td></tr>
     </table>
+  </div>
 
-    <!-- Note -->
-    <div class="p-note">
-      <b>หมายเหตุ:</b><br>
-      • k_opt = ค่าสัมประสิทธิ์ปฏิกิริยาของชั้นดิน (Modulus of Subgrade Reaction) ต่ำสุดที่ต้องการ<br>
-      • k_actual = ค่า k จริงที่ประเมินได้จาก CBR → MR → Nomograph (AASHTO Fig. 3.3)<br>
-      • ✓ ผ่าน: k_actual ≥ k_opt — โครงสร้างชั้นทางเพียงพอ<br>
-      • ✗ ไม่ผ่าน: k_actual &lt; k_opt — ต้องปรับปรุงชั้นรองรับหรือเพิ่มความหนา D<br>
-      • อ้างอิง: AASHTO Guide for Design of Pavement Structures, 1993
+  <div style="text-align:center;padding:6px 0 14px">
+    <button class="btn accent" onclick="showTab('result')">ดูผลลัพธ์ →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     TAB 4 : RESULTS
+══════════════════════════════════ -->
+<div class="section" id="tab-result">
+  <div style="text-align:right;margin-bottom:10px">
+    <button class="btn pdf-btn" onclick="exportPDF()">⬇ Export PDF</button>
+  </div>
+  <div id="resultContent">
+    <div class="empty"><div class="icon">🔢</div>กรอก Input แล้วมาดูผลลัพธ์ที่นี่</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     TAB 5 : REFERENCE
+══════════════════════════════════ -->
+<div class="section" id="tab-ref">
+
+  <div class="card">
+    <div class="card-title">AASHTO 1993 Rigid Pavement Equation</div>
+    <div class="formula-block"><span class="hl">log(W18)</span> = ZR·So + 7.35·log(D+1) − 0.06
+         + log(ΔPSI/2.7) / (1 + 1.624×10⁷/(D+1)^8.46)
+         + (4.22 − 0.32·pt)·log[<span class="hl">Sc'·Cd</span>·(D^0.75−1.132)
+           / (215.63·<span class="hl">J</span>·(D^0.75−18.42/<span class="hl">(Ec/k)^0.25</span>))]
+
+D = Slab thickness (inches) — solve by bisection method</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">CBR → MR → k Conversion</div>
+    <div class="formula-block">MR (AASHTO) = <span class="hl">1,500 × CBR</span> (psi)
+MR (Powell)  = <span class="hl">2,555 × CBR^0.64</span> (psi)
+
+k ≈ <span class="hl">MR / 19.4</span> (pci)  — AASHTO approximation
+
+ตัวอย่าง: CBR 5% → MR=7,500 psi → k≈38.7 pci</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Reliability — ZR Values</div>
+    <table class="ref-table">
+      <tr><th>R (%)</th><th>ZR</th><th>การใช้งาน</th></tr>
+      <tr><td>50</td><td>0.000</td><td>ทดสอบ/ประเมิน</td></tr>
+      <tr><td>75</td><td>-0.674</td><td>ถนนชนบท</td></tr>
+      <tr><td>85</td><td>-1.037</td><td>ถนนท้องถิ่น</td></tr>
+      <tr class="highlight"><td>90</td><td>-1.282</td><td>ทางหลวงทั่วไป ✓</td></tr>
+      <tr><td>95</td><td>-1.645</td><td>ทางหลวงสำคัญ</td></tr>
+      <tr><td>99</td><td>-2.327</td><td>ทางด่วน/สำคัญมาก</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">J — Load Transfer Coefficient</div>
+    <table class="ref-table">
+      <tr><th>ประเภท</th><th>J</th><th>เงื่อนไข</th></tr>
+      <tr class="highlight"><td>JPCP/JRCP</td><td>2.8</td><td>default ทล. (shoulder AC)</td></tr>
+      <tr><td>JPCP/JRCP</td><td>2.5–2.7</td><td>tied PCC shoulder</td></tr>
+      <tr class="highlight"><td>CRCP</td><td>2.5</td><td>default ทล. (shoulder AC)</td></tr>
+      <tr><td>CRCP</td><td>2.3–2.4</td><td>tied PCC shoulder</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Loss of Support (LS) — Digitized Fig. 3.4</div>
+    <div class="formula-block">k_design = applyLS(k∞, LS)
+log-log interpolation จาก AASHTO 1993 Figure 3.4
+LS=0 → k_design = k∞ (ไม่เปลี่ยน)</div>
+    <table class="ref-table" style="margin-top:8px">
+      <tr><th>k∞ (pci)</th><th>LS=1.0</th><th>LS=2.0</th><th>LS=3.0</th></tr>
+      <tr><td>10</td><td>6</td><td>3.6</td><td>2.2</td></tr>
+      <tr><td>50</td><td>25</td><td>10</td><td>5.3</td></tr>
+      <tr><td>100</td><td>40</td><td>17</td><td>7.8</td></tr>
+      <tr><td>500</td><td>160</td><td>45</td><td>18</td></tr>
+      <tr class="highlight"><td>540*</td><td>170*</td><td>—</td><td>—</td></tr>
+      <tr><td>1000</td><td>270</td><td>68</td><td>36</td></tr>
+    </table>
+    <div class="hint" style="margin-top:6px">* ตรวจสอบโดยอ่านจาก Nomograph จริง (อาจารย์อิทธิพล)</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">LS — วัสดุและค่าแนะนำ (AASHTO 1993)</div>
+    <table class="ref-table">
+      <tr><th>ประเภทวัสดุ Subbase</th><th>LS</th></tr>
+      <tr class="highlight"><td>Cement / Asphalt Treated Base</td><td>0.0 – 1.0</td></tr>
+      <tr><td>Granular (หินคลุก, CBR≥25%)</td><td>1.0 – 3.0</td></tr>
+      <tr><td>Fine-grained / Natural Subgrade</td><td>2.0 – 3.0</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">C<sub>d</sub> — Drainage Coefficient</div>
+    <table class="ref-table">
+      <tr><th>Cd</th><th>สภาพการระบายน้ำ</th></tr>
+      <tr class="highlight"><td>1.0</td><td>ทั่วไป — default ทล. ✓</td></tr>
+      <tr><td>1.1</td><td>ระบายน้ำดี (ชั้นทรายกรอง/edge drain)</td></tr>
+      <tr><td>1.2</td><td>ระบายน้ำดีมาก (ระบบสมบูรณ์)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Concrete Constants (คงที่)</div>
+    <table class="ref-table">
+      <tr><th>Parameter</th><th>ค่า</th><th>ที่มา</th></tr>
+      <tr class="highlight"><td>Ec</td><td>3,597,075 psi</td><td>PCC 350 ksc (cube)</td></tr>
+      <tr class="highlight"><td>Sc'</td><td>600 psi</td><td>MOR สูงสุด ทล.</td></tr>
+      <tr><td>So</td><td>0.35</td><td>Std. deviation (Rigid)</td></tr>
+      <tr><td>pi</td><td>4.5</td><td>Initial PSI (Rigid)</td></tr>
+    </table>
+  </div>
+
+  <div class="footnote">
+    AASHTO Guide for Design of Pavement Structures (1993)<br>
+    Developed for field use · Offline capable after first load
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════ -->
+<script>
+// ─── Constants ─────────────────────────────────────
+const ZR_MAP   = { 50:0.000, 75:-0.674, 80:-0.841, 85:-1.037, 90:-1.282, 95:-1.645, 99:-2.327 };
+const SO_FIXED = 0.35;
+const PI_FIXED = 4.5;
+const EC_FIXED = 3597075;  // psi  (350 ksc cube)
+const SC_FIXED = 600;       // psi  (MOR max ทล.)
+const COLORS   = ['#f0c040','#4fc3f7','#66bb6a','#ffa726','#ce93d8','#ef9a9a','#80cbc4'];
+
+// ─── Material Library (Rigid) ───────────────────────
+const LAYER_TYPES = [
+  { name:'รองผิวคอนกรีตด้วย AC',                    e_mpa:2500, pdfName:'AC Leveling Course (under PCC)' },
+  { name:'CTB (หินคลุกปรับปรุงด้วยปูนซีเมนต์)',      e_mpa:1200, pdfName:'Cement Treated Base (CTB)' },
+  { name:'หินคลุกผสมซีเมนต์ UCS 24.5 ksc.',          e_mpa:850,  pdfName:'MOD. Crushed Rock Base UCS 24.5 ksc.' },
+  { name:'หินคลุก CBR 80%',                           e_mpa:350,  pdfName:'Crushed Rock Base CBR 80%' },
+  { name:'ดินซีเมนต์ UCS 17.5 ksc.',                  e_mpa:350,  pdfName:'Soil Cement Subbase UCS 17.5 ksc.' },
+  { name:'วัสดุหมุนเวียน (Recycling)',                e_mpa:850,  pdfName:'Recycled Material' },
+  { name:'วัสดุมวลรวม CBR 25%',                       e_mpa:150,  pdfName:'Aggregate Subbase CBR 25%' },
+  { name:'วัสดุคัดเลือก ก',                          e_mpa:100,  pdfName:'Selected Material Type A' },
+  { name:'Custom',                                     e_mpa:0,    pdfName:'Custom Material' },
+];
+
+let layers = [];
+let layerCounter = 0;
+
+// ─── Tab control ────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    const oc = t.getAttribute('onclick') || '';
+    if (oc.includes("'" + name + "'")) t.classList.add('active');
+  });
+  if (name === 'result') renderResult();
+}
+
+// ─── J range by pavement type ───────────────────────
+function updateJRange() {
+  const type = document.getElementById('pavType').value;
+  const sel  = document.getElementById('J');
+  sel.innerHTML = '';
+  let opts, def, hint;
+  if (type === 'jpcp') {
+    opts = [2.5, 2.6, 2.7, 2.8]; def = 2.8;
+    hint = 'JPCP/JRCP: 2.5–2.8 (default 2.8)';
+  } else {
+    opts = [2.3, 2.4, 2.5]; def = 2.5;
+    hint = 'CRCP: 2.3–2.5 (default 2.5)';
+  }
+  opts.forEach(v => {
+    const o = document.createElement('option');
+    o.value = v.toFixed(1);
+    o.textContent = v.toFixed(1) + (v === def ? ' (default)' : '');
+    if (v === def) o.selected = true;
+    sel.appendChild(o);
+  });
+  document.getElementById('jHint').textContent = hint;
+  calc();
+}
+
+// ─── Loss of Support — Digitized AASHTO 1993 Fig.3.4 ──
+// log-log interpolation (ตรวจสอบกับ nomograph จริง: k∞=540,LS=1→170 ✓)
+const LS_K_PTS = [10,   50,  100,  500, 1000];
+const LS_K1    = [ 6,   25,   40,  160,  270];  // LS=1
+const LS_K2    = [ 3.6, 10,   17,   45,   68];  // LS=2
+const LS_K3    = [ 2.2,  5.3,  7.8,  18,   36]; // LS=3
+
+function _logInterp(kPts, kVals, k_inf) {
+  const lk = Math.log10(Math.max(10, Math.min(1000, k_inf)));
+  const lkPts = kPts.map(v => Math.log10(v));
+  const lkVals = kVals.map(v => Math.log10(v));
+  // linear interp บน log-log
+  for (let i = 0; i < lkPts.length - 1; i++) {
+    if (lk <= lkPts[i+1]) {
+      const t = (lk - lkPts[i]) / (lkPts[i+1] - lkPts[i]);
+      return Math.pow(10, lkVals[i] + t * (lkVals[i+1] - lkVals[i]));
+    }
+  }
+  // extrapolate จากจุดสุดท้าย
+  const n = lkPts.length - 1;
+  const t = (lk - lkPts[n-1]) / (lkPts[n] - lkPts[n-1]);
+  return Math.pow(10, lkVals[n-1] + t * (lkVals[n] - lkVals[n-1]));
+}
+
+function applyLS(k_inf, ls) {
+  if (ls <= 0) return k_inf;
+  const lk0 = Math.log10(k_inf);
+  const lk1 = Math.log10(_logInterp(LS_K_PTS, LS_K1, k_inf));
+  const lk2 = Math.log10(_logInterp(LS_K_PTS, LS_K2, k_inf));
+  const lk3 = Math.log10(_logInterp(LS_K_PTS, LS_K3, k_inf));
+  let lk_out;
+  if (ls <= 1.0) {
+    lk_out = lk0 + (ls / 1.0) * (lk1 - lk0);
+  } else if (ls <= 2.0) {
+    lk_out = lk1 + ((ls - 1.0) / 1.0) * (lk2 - lk1);
+  } else {
+    const t = Math.min((ls - 2.0) / 1.0, 1.0);
+    lk_out = lk2 + t * (lk3 - lk2);
+  }
+  return Math.max(2, Math.pow(10, lk_out));
+}
+
+function getLS() {
+  return parseFloat(document.getElementById('LS').value) || 0;
+}
+
+function getKInf() {
+  // k∞ ก่อน apply LS
+  if (document.getElementById('kMode').value === 'direct') {
+    return parseFloat(document.getElementById('k_direct').value) || 100;
+  }
+  return getMR() / 19.4;
+}
+
+function updateLS() {
+  const k_inf = getKInf();
+  const ls    = getLS();
+  const k_des = applyLS(k_inf, ls);
+  const lsStr = ls === 0 ? 'LS=0.0 (ไม่ปรับ)' : `LS=${ls.toFixed(1)}`;
+  document.getElementById('lsDisplay').textContent =
+    `k∞ = ${k_inf.toFixed(1)} pci  →  k design = ${k_des.toFixed(1)} pci  [${lsStr}]`;
+  calc();
+}
+function updateKMode() {
+  const mode = document.getElementById('kMode').value;
+  document.getElementById('kCbrBlock').style.display    = mode === 'cbr'    ? 'block' : 'none';
+  document.getElementById('kDirectBlock').style.display = mode === 'direct' ? 'block' : 'none';
+  updateK();
+}
+
+function getMR() {
+  const cbr = parseFloat(document.getElementById('CBR').value) || 5;
+  return document.getElementById('mrMethod').value === 'aashto'
+    ? 1500 * cbr
+    : 2555 * Math.pow(cbr, 0.64);
+}
+
+function getK() {
+  // k_design = k∞ หลัง apply LS — ใช้ในสมการออกแบบ
+  return applyLS(getKInf(), getLS());
+}
+
+function updateK() {
+  const mode = document.getElementById('kMode').value;
+  if (mode === 'cbr') {
+    const mr   = getMR();
+    const kinf = mr / 19.4;
+    document.getElementById('mrDisplay').textContent = `MR = ${mr.toLocaleString('en',{maximumFractionDigits:0})} psi`;
+    document.getElementById('kDisplay').textContent  = `k∞ = ${kinf.toFixed(1)} pci  (= MR / 19.4)`;
+  } else {
+    const kinf = parseFloat(document.getElementById('k_direct').value) || 100;
+    document.getElementById('kDisplay').textContent = `k∞ = ${kinf.toFixed(1)} pci`;
+  }
+  updateLS();  // อัปเดต lsDisplay และ calc() ต่อ
+}
+
+function updateZR() {
+  const r = parseInt(document.getElementById('R').value);
+  document.getElementById('ZR_display').textContent = ZR_MAP[r].toFixed(3);
+  calc();
+}
+
+function getZR() { return ZR_MAP[parseInt(document.getElementById('R').value)]; }
+function getPt()  { return parseFloat(document.getElementById('pt').value) || 2.5; }
+
+function updateDPSI() {
+  document.getElementById('dpsiDisplay').textContent = `ΔPSI = ${(PI_FIXED - getPt()).toFixed(2)}`;
+}
+
+// ─── AASHTO 1993 Rigid Equation ─────────────────────
+// Returns logW18 for given D (inches)
+function rigidLogW18(D, ZR, So, pt, k, J, Cd, Sc, Ec) {
+  const DPSI = PI_FIXED - pt;
+  const t1   = ZR * So;
+  const t2   = 7.35 * Math.log10(D + 1) - 0.06;
+  const t3   = Math.log10(DPSI / 2.7) / (1 + 1.624e7 / Math.pow(D + 1, 8.46));
+
+  const EkQ  = Math.pow(Ec / k, 0.25);
+  const num  = Sc * Cd * (Math.pow(D, 0.75) - 1.132);
+  const den  = 215.63 * J * (Math.pow(D, 0.75) - 18.42 / EkQ);
+
+  let t4 = 0;
+  if (num > 0 && den > 0) {
+    t4 = (4.22 - 0.32 * pt) * Math.log10(num / den);
+  }
+  return t1 + t2 + t3 + t4;
+}
+
+// Bisection: solve D (inches) from W18 target
+function calcDRequired(W18_million, ZR, So, pt, k, J, Cd, Sc, Ec) {
+  const target = Math.log10(W18_million * 1e6);
+  let lo = 2, hi = 35, mid = 10;
+  for (let i = 0; i < 150; i++) {
+    mid = (lo + hi) / 2;
+    const val = rigidLogW18(mid, ZR, So, pt, k, J, Cd, Sc, Ec);
+    if (val < target) lo = mid; else hi = mid;
+    if (hi - lo < 0.00001) break;
+  }
+  return mid;
+}
+
+// Round up to nearest 0.5 inch
+function roundUp05(d_in) {
+  return Math.ceil(d_in * 2 - 1e-9) / 2;
+}
+
+// W18 capacity from given D
+function calcW18fromD(D_in, ZR, So, pt, k, J, Cd, Sc, Ec) {
+  return Math.pow(10, rigidLogW18(D_in, ZR, So, pt, k, J, Cd, Sc, Ec));
+}
+
+// ─── ทล. D lookup table ──────────────────────────────
+const DOH_D_TABLE = {
+  10: 25,
+  11: 28,
+  12: 30,
+  13: 32,
+  14: 35,
+};
+
+function updateDProvide() {
+  const sel = document.getElementById('D_select').value;
+  const customBlock = document.getElementById('dCustomBlock');
+
+  if (sel === 'custom') {
+    customBlock.style.display = 'block';
+    const d_in = parseFloat(document.getElementById('D_custom').value) || 10;
+    const d_cm = d_in * 2.54;
+    document.getElementById('dProvideDisplay').textContent =
+      `D = ${d_in.toFixed(3)} in = ${d_cm.toFixed(2)} cm  (Custom — ไม่ใช่ ทล. standard)`;
+  } else {
+    customBlock.style.display = 'none';
+    const d_in = parseFloat(sel);
+    const d_cm_doh = DOH_D_TABLE[d_in];
+    document.getElementById('dProvideDisplay').textContent =
+      `D = ${d_in.toFixed(3)} in = ${d_cm_doh} cm  (ทล. ${d_cm_doh} cm)`;
+  }
+  calc();
+}
+
+function getDProvide_in() {
+  const sel = document.getElementById('D_select').value;
+  if (sel === 'custom') return parseFloat(document.getElementById('D_custom').value) || 10;
+  return parseFloat(sel);
+}
+
+// คืนค่า cm ตาม ทล. table (ถ้ามี) หรือ ×2.54
+function getDProvide_cm() {
+  const sel = document.getElementById('D_select').value;
+  if (sel === 'custom') {
+    const d_in = parseFloat(document.getElementById('D_custom').value) || 10;
+    return d_in * 2.54;
+  }
+  const d_in = parseFloat(sel);
+  return DOH_D_TABLE[d_in] || d_in * 2.54;
+}
+
+function getDProvide_label() {
+  const sel = document.getElementById('D_select').value;
+  if (sel === 'custom') return 'Custom';
+  const d_cm = DOH_D_TABLE[parseFloat(sel)];
+  return `ทล. ${d_cm} cm`;
+}
+
+// ─── Main calc ──────────────────────────────────────
+function calc() {
+  updateDPSI();
+  if (document.getElementById('tab-result').classList.contains('active')) renderResult();
+}
+
+// ─── Layer management ───────────────────────────────
+function addLayer() {
+  const id   = ++layerCounter;
+  const used = layers.map(l => l.name);
+  const def  = LAYER_TYPES.find(t => !used.includes(t.name)) || LAYER_TYPES[0];
+  layers.push({ id, name: def.name, e_mpa: def.e_mpa, D: 15, pdfName: def.pdfName });
+  renderLayers();
+}
+
+function removeLayer(id) {
+  layers = layers.filter(l => l.id !== id);
+  renderLayers();
+}
+
+function loadPreset() {
+  layers = []; layerCounter = 0;
+  [
+    { name:'CTB (หินคลุกปรับปรุงด้วยปูนซีเมนต์)', e_mpa:1200, D:15, pdfName:'Cement Treated Base (CTB)' },
+    { name:'วัสดุมวลรวม CBR 25%',                  e_mpa:150,  D:20, pdfName:'Aggregate Subbase CBR 25%' },
+  ].forEach(p => layers.push({ id: ++layerCounter, ...p }));
+  renderLayers();
+}
+
+function updateLayerField(id, field, value) {
+  const layer = layers.find(l => l.id === id);
+  if (!layer) return;
+  if (field === 'name') {
+    const match = LAYER_TYPES.find(t => t.name === value);
+    if (match) { layer.name = match.name; layer.e_mpa = match.e_mpa; layer.pdfName = match.pdfName; }
+    else layer.name = value;
+  } else if (field === 'D') {
+    layer.D = parseFloat(value) || 0;
+  } else if (field === 'e_mpa') {
+    layer.e_mpa = parseFloat(value) || 0;
+  }
+}
+
+function renderLayers() {
+  const list  = document.getElementById('layerList');
+  const empty = document.getElementById('layerEmpty');
+  if (layers.length === 0) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  const usedAll = layers.map(l => l.name);
+
+  list.innerHTML = layers.map((layer, idx) => {
+    const color    = COLORS[(idx + 1) % COLORS.length];
+    const isCustom = layer.name === 'Custom';
+    return `
+    <div class="layer-item">
+      <div class="layer-header">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:10px;height:10px;border-radius:2px;background:${color};flex-shrink:0"></div>
+          <span class="layer-badge">Base/Sub ${idx + 1}</span>
+        </div>
+        <button class="layer-delete" onclick="removeLayer(${layer.id})">×</button>
+      </div>
+      <div class="input-row single" style="margin-bottom:10px">
+        <div class="field">
+          <label>วัสดุ</label>
+          <select onchange="updateLayerField(${layer.id},'name',this.value);renderLayers()">
+            ${LAYER_TYPES.map(t => {
+              const usedByOther = usedAll.includes(t.name) && t.name !== layer.name && t.name !== 'Custom';
+              return `<option value="${t.name}" ${t.name === layer.name ? 'selected' : ''} ${usedByOther ? 'disabled' : ''}>${t.name}${usedByOther ? ' (ใช้แล้ว)' : ''}</option>`;
+            }).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="field">
+          <label>ความหนา <span class="unit">(cm)</span></label>
+          <input type="number" value="${layer.D}" step="1" min="1"
+            oninput="layers.find(l=>l.id===${layer.id}).D=parseFloat(this.value)||0">
+        </div>
+        <div class="field">
+          <label>E <span class="unit">(MPa)</span></label>
+          <input type="number" value="${layer.e_mpa}" step="50" min="0"
+            ${!isCustom ? 'style="opacity:0.5;background:var(--surface2)!important" readonly' : ''}
+            oninput="updateLayerField(${layer.id},'e_mpa',this.value)">
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Render Results ──────────────────────────────────
+function renderResult() {
+  const W18         = parseFloat(document.getElementById('W18').value) || 0;
+  const ZR          = getZR();
+  const So          = SO_FIXED;
+  const pt          = getPt();
+  const k_inf       = getKInf();
+  const ls          = getLS();
+  const k           = getK();
+  const J           = parseFloat(document.getElementById('J').value) || 2.8;
+  const Cd          = parseFloat(document.getElementById('Cd').value) || 1.0;
+  const R           = parseInt(document.getElementById('R').value);
+  const DPSI        = PI_FIXED - pt;
+  const pavType     = document.getElementById('pavType').value.toUpperCase();
+  const projectName = document.getElementById('projectName').value.trim();
+  const D_prov_in   = getDProvide_in();
+  const D_prov_cm   = getDProvide_cm();
+  const D_prov_label = getDProvide_label();
+  const kMode       = document.getElementById('kMode').value;
+  const kModeStr    = kMode === 'cbr'
+    ? `CBR→MR(${document.getElementById('mrMethod').value.toUpperCase()})→k`
+    : 'Direct Input';
+
+  if (W18 <= 0 || k <= 0) {
+    document.getElementById('resultContent').innerHTML = `
+      <div class="empty"><div class="icon">⚠️</div>กรอก W18 และ k ให้ครบก่อนครับ</div>`;
+    return;
+  }
+
+  const D_req_raw = calcDRequired(W18, ZR, So, pt, k, J, Cd, SC_FIXED, EC_FIXED);
+  const D_req_in  = roundUp05(D_req_raw);
+  const D_req_cm  = D_req_in * 2.54;
+  const pass      = D_prov_in >= D_req_in - 0.001;
+  const mg_in     = D_prov_in - D_req_in;
+  const mg_cm     = mg_in * 2.54;
+  const W18_cap   = calcW18fromD(D_prov_in, ZR, So, pt, k, J, Cd, SC_FIXED, EC_FIXED) / 1e6;
+  const passColor = pass ? 'var(--green)' : 'var(--red)';
+
+  let html = '';
+
+  if (projectName) {
+    html += `
+    <div class="project-banner">
+      <div class="proj-label">Project</div>
+      <div class="proj-name">${projectName}</div>
+    </div>`;
+  }
+
+  // D Required big block
+  html += `
+  <div class="card">
+    <div class="card-title">Slab Thickness Required</div>
+    <div style="background:rgba(79,195,247,0.06);border:2px solid var(--accent2);border-radius:10px;padding:16px;text-align:center;margin-bottom:10px">
+      <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:0.06em;margin-bottom:6px">D REQUIRED (ปัดขึ้น 0.5 in)</div>
+      <div style="font-size:44px;font-weight:700;color:var(--accent2);font-family:'IBM Plex Mono',monospace;line-height:1">${D_req_cm.toFixed(2)}</div>
+      <div style="font-size:15px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:4px">cm &nbsp;|&nbsp; ${D_req_in.toFixed(2)} in</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;font-family:'IBM Plex Mono',monospace">(คำนวณได้ ${D_req_raw.toFixed(4)} in ก่อนปัด)</div>
     </div>
 
-    <!-- Footer -->
-    <div class="p-footer">
-      <span>AASHTO 1993 Rigid Pavement k Optimum Tool · รศ.ดร.อิทธิพล มีผล · TTC-KMUTNB</span>
-      <span>วันที่ออกรายงาน: ${now}</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="result-box ${pass ? 'pass' : 'fail'}">
+        <div class="result-label">D Provided</div>
+        <div class="result-value" style="color:${passColor}">${D_prov_in.toFixed(0)} in</div>
+        <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace">${D_prov_cm.toFixed(1)} cm [${D_prov_label}]</div>
+      </div>
+      <div class="result-box">
+        <div class="result-label">Margin</div>
+        <div class="result-value" style="color:${passColor}">${mg_cm >= 0 ? '+' : ''}${mg_cm.toFixed(2)}</div>
+        <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace">${mg_in >= 0 ? '+' : ''}${mg_in.toFixed(3)} in</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:8px">
+      <span class="status-badge ${pass ? 'pass' : 'fail'}">
+        ${pass ? '✓ PASS' : '✗ FAIL'} — D ${pass ? 'เพียงพอ' : 'ไม่เพียงพอ'}
+      </span>
+    </div>
+  </div>`;
+
+  // W18 Capacity
+  html += `
+  <div class="card">
+    <div class="card-title">Traffic Capacity (D Provided)</div>
+    <div style="text-align:center;padding:10px 0">
+      <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">W18 CAPACITY</div>
+      <div style="font-size:36px;font-weight:700;color:${W18_cap >= W18 ? 'var(--green)' : 'var(--red)'};font-family:'IBM Plex Mono',monospace">${W18_cap.toFixed(2)}</div>
+      <div style="font-size:13px;color:var(--muted);font-family:'IBM Plex Mono',monospace">M ESAL &nbsp;(Design = ${W18.toFixed(2)} M ESAL)</div>
+    </div>
+  </div>`;
+
+  // Design Parameters
+  html += `
+  <div class="card">
+    <div class="card-title">Design Parameters</div>
+    <table class="info-table">
+      <tr><td>W18 (Design ESAL)</td><td>${W18.toFixed(2)} M ESAL</td></tr>
+      <tr><td>k∞ (Subgrade)</td><td>${k_inf.toFixed(1)} pci [${kModeStr}]</td></tr>
+      <tr><td>Loss of Support (LS)</td><td>${ls.toFixed(1)}</td></tr>
+      <tr><td>k design (หลัง LS)</td><td>${k.toFixed(1)} pci</td></tr>
+      <tr><td>E<sub>c</sub> (PCC)</td><td>${EC_FIXED.toLocaleString('en')} psi</td></tr>
+      <tr><td>S<sub>c</sub>' (MOR)</td><td>${SC_FIXED} psi</td></tr>
+      <tr><td>R / ZR / So</td><td>${R}% / ${ZR.toFixed(3)} / ${So.toFixed(2)}</td></tr>
+      <tr><td>p<sub>i</sub> / p<sub>t</sub> / ΔPSI</td><td>${PI_FIXED.toFixed(1)} / ${pt.toFixed(1)} / ${DPSI.toFixed(2)}</td></tr>
+      <tr><td>J (${pavType}) / C<sub>d</sub></td><td>${J.toFixed(1)} / ${Cd.toFixed(1)}</td></tr>
+      <tr><td>D Required (calc.)</td><td>${D_req_raw.toFixed(4)} in = ${(D_req_raw*2.54).toFixed(3)} cm</td></tr>
+      <tr><td>D Required (ปัด 0.5 in)</td><td>${D_req_in.toFixed(2)} in = ${D_req_cm.toFixed(2)} cm</td></tr>
+      <tr><td>D Provided</td><td>${D_prov_in.toFixed(0)} in = ${D_prov_cm.toFixed(1)} cm [${D_prov_label}]</td></tr>
+    </table>
+  </div>`;
+
+  // Base/Subbase
+  if (layers.length > 0) {
+    let totalBase = 0;
+    html += `
+    <div class="card">
+      <div class="card-title">Base / Subbase Layers (Report Only)</div>
+      <div class="warn-note" style="margin-bottom:8px">⚠ ไม่กระทบการคำนวณ D — บันทึกสำหรับรายงานเท่านั้น</div>
+      <table class="info-table">
+        <tr>
+          <td style="color:var(--muted);font-size:10px">ชั้น</td>
+          <td style="color:var(--muted);font-size:10px">วัสดุ</td>
+          <td style="color:var(--muted);font-size:10px;text-align:right">หนา (cm)</td>
+        </tr>`;
+    layers.forEach((layer, i) => {
+      const color = COLORS[(i + 1) % COLORS.length];
+      totalBase += layer.D;
+      html += `
+        <tr>
+          <td><span style="color:${color}">■</span> ${i+1}</td>
+          <td style="color:var(--text);font-size:11px">${layer.name}</td>
+          <td style="text-align:right">${layer.D.toFixed(1)}</td>
+        </tr>`;
+    });
+    html += `
+        <tr style="border-top:2px solid var(--accent)">
+          <td colspan="2" style="color:var(--accent);font-weight:600">รวม Base/Subbase</td>
+          <td style="text-align:right;color:var(--accent);font-weight:600">${totalBase.toFixed(1)}</td>
+        </tr>
+      </table>
     </div>`;
 
-  document.getElementById('print-section').innerHTML=html;
+    html += `
+    <div class="card">
+      <div class="card-title">Total Cross-Section</div>
+      <table class="info-table">
+        <tr><td>PCC Slab (D provided)</td><td>${D_prov_cm.toFixed(1)} cm</td></tr>
+        <tr><td>Base / Subbase รวม</td><td>${totalBase.toFixed(1)} cm</td></tr>
+        <tr style="border-top:2px solid var(--accent)">
+          <td style="color:var(--accent);font-weight:600">รวมทั้งหมด</td>
+          <td style="color:var(--accent);font-weight:600;text-align:right">${(D_prov_cm + totalBase).toFixed(1)} cm</td>
+        </tr>
+      </table>
+    </div>`;
+  }
+
+  document.getElementById('resultContent').innerHTML = html;
 }
 
-// ══════════════════════════════════════
-// J CONTROLS
-// ══════════════════════════════════════
-function renderJ(){
-  const sJ=mode==='jpcp'||mode==='both';
-  const sC=mode==='crcp'||mode==='both';
-  let h='';
-  if(sJ) h+=`<div><div style="font-size:9px;color:var(--muted);margin-bottom:4px;">JPCP/JRCP</div>
-    <div class="pills">${[2.5,2.6,2.7,2.8].map(v=>
-      `<div class="pill${v===jJPCP?' pb':''}" onclick="setJJ(${v})">${v.toFixed(1)}</div>`
-    ).join('')}</div></div>`;
-  if(sC) h+=`<div><div style="font-size:9px;color:var(--muted);margin-bottom:4px;">CRCP</div>
-    <div class="pills">${[2.3,2.4,2.5,2.6].map(v=>
-      `<div class="pill${v===jCRCP?' pg':''}" onclick="setJC(${v})">${v.toFixed(1)}</div>`
-    ).join('')}</div></div>`;
-  document.getElementById('jctrl').innerHTML=h;
+// ─── Export PDF (DOS-style) ──────────────────────────
+function exportPDF() {
+  if (!navigator.onLine) {
+    alert('ไม่มีอินเทอร์เน็ต ไม่สามารถโหลด jsPDF ได้');
+    return;
+  }
+  if (typeof window.jspdf === 'undefined') {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload  = () => generatePDF();
+    s.onerror = () => alert('โหลด jsPDF ไม่สำเร็จ');
+    document.head.appendChild(s);
+  } else {
+    generatePDF();
+  }
 }
 
-// ══════════════════════════════════════
-// SETTERS
-// ══════════════════════════════════════
-function setMode(m){
-  mode=m;
-  ['both','jpcp','crcp'].forEach(id=>{
-    const el=document.getElementById(`btn-${id}`);
-    el.className='pill';
-    if(id===m) el.classList.add(m==='both'?'pa':m==='jpcp'?'pb':'pg');
-  });
-  renderJ(); go();
-}
-function setR(v){
-  R=v;
-  [80,85,90].forEach(r=>document.getElementById(`r${r}`).className='pill'+(r===v?' pa':''));
-  go();
-}
-function setPT(v){
-  PT=v;
-  [20,25].forEach(x=>document.getElementById(`pt${x}`).className='pill'+(x/10===v?' pa':''));
-  go();
-}
-function setCd(v){
-  Cd=v;
-  [10,11,12].forEach(x=>document.getElementById(`cd${x}`).className='pill'+(x/10===v?' pa':''));
-  go();
-}
-function setJJ(v){ jJPCP=v; renderJ(); go(); }
-function setJC(v){ jCRCP=v; renderJ(); go(); }
+function generatePDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-window.addEventListener('load',()=>{ renderJ(); go(); });
+  // gather
+  const W18        = parseFloat(document.getElementById('W18').value) || 0;
+  const ZR         = getZR();
+  const So         = SO_FIXED;
+  const pt         = getPt();
+  const k_inf      = getKInf();
+  const ls         = getLS();
+  const k          = getK();   // k_design = applyLS(k_inf, ls)
+  const J          = parseFloat(document.getElementById('J').value) || 2.8;
+  const Cd         = parseFloat(document.getElementById('Cd').value) || 1.0;
+  const R          = parseInt(document.getElementById('R').value);
+  const DPSI       = PI_FIXED - pt;
+  const pavType    = document.getElementById('pavType').value.toUpperCase();
+  const kMode      = document.getElementById('kMode').value;
+  const kModeStr   = kMode === 'cbr'
+    ? `CBR ${document.getElementById('CBR').value}%→MR/${document.getElementById('mrMethod').value === 'aashto' ? '1500xCBR' : 'Powell'}→k∞`
+    : 'Direct Input';
+  const projectName = document.getElementById('projectName').value.trim() || 'Untitled Project';
+  const D_prov_in  = getDProvide_in();
+  const D_prov_cm  = getDProvide_cm();
+  const D_prov_label = getDProvide_label();
+  const now        = new Date().toLocaleDateString('en-GB');
+
+  const D_req_raw  = calcDRequired(W18, ZR, So, pt, k, J, Cd, SC_FIXED, EC_FIXED);
+  const D_req_in   = roundUp05(D_req_raw);
+  const D_req_cm   = D_req_in * 2.54;
+  const pass       = D_prov_in >= D_req_in - 0.001;
+  const mg_in      = D_prov_in - D_req_in;
+  const mg_cm      = mg_in * 2.54;
+  const W18_cap    = calcW18fromD(D_prov_in, ZR, So, pt, k, J, Cd, SC_FIXED, EC_FIXED) / 1e6;
+
+  // DOS layout
+  const ML  = 15;
+  const PR  = 195;
+  const EQ  = '====================================================================================================';
+  const DA  = '----------------------------------------------------------------------------------------------------';
+  let y = 15;
+
+  function setFont(bold, size) {
+    doc.setFont('courier', bold ? 'bold' : 'normal');
+    doc.setFontSize(size || 9);
+    doc.setTextColor(0, 0, 0);
+  }
+  function sep(yy, ch) { setFont(false, 9); doc.text(ch === '=' ? EQ : DA, ML, yy); }
+  function rowPDF(label, value, yy) {
+    setFont(false, 9);
+    doc.text(label, ML, yy);
+    doc.text(value, PR, yy, { align: 'right' });
+  }
+
+  // HEADER
+  setFont(true, 11);
+  doc.text('RIGID PAVEMENT DESIGN - AASHTO 1993', 105, y, { align: 'center' });
+  y += 5; setFont(false, 8);
+  doc.text('Assoc.Prof.Dr.Ittipon Meepon  |  TTC-KMUTNB', 105, y, { align: 'center' });
+  y += 5; sep(y, '='); y += 5;
+
+  rowPDF(`Project : ${projectName}`, `Date : ${now}`, y);
+  y += 5; sep(y, '='); y += 6;
+
+  // DESIGN INPUT
+  setFont(true, 9); doc.text('DESIGN INPUT', ML, y); y += 4;
+  sep(y, '-'); y += 5;
+
+  const inputs = [
+    ['W18 (Design ESAL)',          `${W18.toFixed(2)} M ESAL`],
+    ['k∞ (Subgrade Modulus)',      `${k_inf.toFixed(1)} pci  [${kModeStr}]`],
+    ['Loss of Support (LS)',        `${ls.toFixed(1)}`],
+    ['k design (หลัง LS)',         `${k.toFixed(1)} pci`],
+    ['Ec (PCC Elastic Modulus)',   `${EC_FIXED.toLocaleString('en')} psi`],
+    ["Sc' (Modulus of Rupture)",   `${SC_FIXED} psi`],
+    ['R / ZR / So',                `${R}% / ${ZR.toFixed(3)} / ${So.toFixed(2)}`],
+    ['pi / pt / DPSI',             `${PI_FIXED.toFixed(1)} / ${pt.toFixed(1)} / ${DPSI.toFixed(2)}`],
+    [`J (${pavType}) / Cd`,        `${J.toFixed(1)} / ${Cd.toFixed(1)}`],
+    ['D Required (calculated)',    `${D_req_raw.toFixed(4)} in  =  ${(D_req_raw*2.54).toFixed(3)} cm`],
+    ['D Required (rounded 0.5 in)',`${D_req_in.toFixed(2)} in  =  ${D_req_cm.toFixed(2)} cm`],
+    ['D Provided',                 `${D_prov_in.toFixed(0)} in  =  ${D_prov_cm.toFixed(1)} cm  [${D_prov_label}]`],
+  ];
+  inputs.forEach(([lbl, val]) => { rowPDF(lbl, val, y); y += 6; });
+  sep(y, '='); y += 6;
+
+  // SLAB DESIGN
+  setFont(true, 9); doc.text('SLAB DESIGN', ML, y); y += 4;
+  sep(y, '-'); y += 5;
+
+  // Column headers
+  const C = { no:ML, mat:ML+8, din:ML+112, dcm:ML+133, mg:ML+157, st:ML+178 };
+  setFont(true, 8);
+  doc.text('No', C.no, y);
+  doc.text('Layer / Material', C.mat, y);
+  doc.text('D(in)', C.din, y, { align:'right' });
+  doc.text('D(cm)', C.dcm, y, { align:'right' });
+  doc.text('Margin', C.mg,  y, { align:'right' });
+  doc.text('Status', C.st,  y, { align:'right' });
+  y += 3; sep(y, '-'); y += 5;
+
+  // PCC Slab row
+  setFont(false, 8);
+  doc.text('1', C.no, y);
+  doc.text(`PCC Slab (${pavType})`, C.mat, y);
+  doc.text(D_prov_in.toFixed(0),  C.din, y, { align:'right' });
+  doc.text(D_prov_cm.toFixed(1),  C.dcm, y, { align:'right' });
+  doc.text((mg_in >= 0 ? '+' : '') + mg_in.toFixed(3), C.mg, y, { align:'right' });
+
+  setFont(true, 8);
+  if (!pass) doc.setTextColor(180, 0, 0);
+  doc.text(pass ? 'PASS' : 'FAIL', C.st, y, { align:'right' });
+  doc.setTextColor(0, 0, 0);
+  y += 6;
+
+  // Base/Subbase rows
+  if (layers.length > 0) {
+    layers.forEach((layer, i) => {
+      setFont(false, 8);
+      doc.text(`${i + 2}`, C.no, y);
+      const mat = (layer.pdfName || layer.name).substring(0, 45);
+      doc.text(mat, C.mat, y);
+      doc.text((layer.D / 2.54).toFixed(2), C.din, y, { align:'right' });
+      doc.text(layer.D.toFixed(1),           C.dcm, y, { align:'right' });
+      doc.text('—',                          C.mg,  y, { align:'right' });
+      doc.text('(report)',                   C.st,  y, { align:'right' });
+      y += 6;
+    });
+  }
+
+  sep(y, '-'); y += 5;
+
+  // Total row
+  let totalBase = 0; layers.forEach(l => { totalBase += l.D; });
+  const totalAll = D_prov_cm + totalBase;
+  setFont(true, 8);
+  doc.text('TOTAL (PCC + Base/Sub)', C.no, y);
+  doc.text((totalAll / 2.54).toFixed(2), C.din, y, { align:'right' });
+  doc.text(totalAll.toFixed(1),          C.dcm, y, { align:'right' });
+  y += 4; sep(y, '='); y += 7;
+
+  // SUMMARY
+  setFont(true, 9);
+  doc.text(`D Required  =  ${D_req_in.toFixed(2)} in  (${D_req_cm.toFixed(2)} cm)`, ML, y);
+  doc.text(`D Provided  =  ${D_prov_in.toFixed(0)} in  (${D_prov_cm.toFixed(1)} cm  [${D_prov_label}])`, 105, y);
+  y += 6;
+  doc.text(`D Margin    =  ${mg_in >= 0 ? '+' : ''}${mg_in.toFixed(3)} in  (${mg_cm >= 0 ? '+' : ''}${mg_cm.toFixed(2)} cm)`, ML, y);
+  doc.text(`W18 Capacity=  ${W18_cap.toFixed(2)} M ESAL`, 105, y);
+  y += 5; sep(y, '='); y += 6;
+
+  // STATUS
+  setFont(true, 11);
+  doc.setTextColor(pass ? 0 : 180, 0, 0);
+  doc.text(`STATUS : ${pass ? 'PASS' : 'FAIL'}`, 105, y, { align: 'center' });
+  y += 4;
+  doc.setTextColor(0, 0, 0);
+  sep(y, '=');
+
+  // FOOTER
+  doc.setFont('courier', 'normal');
+  doc.setFontSize(7);
+  doc.setTextColor(100, 100, 100);
+  doc.text('AASHTO Guide for Design of Pavement Structures (1993)  |  TTC-KMUTNB', 105, 290, { align: 'center' });
+
+  const filename = projectName.replace(/[^a-zA-Z0-9]/g, '_') || 'Rigid_Pavement';
+  doc.save(`${filename}___________AASHTO1993.pdf`);
+}
+
+// ─── Init ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  updateJRange();
+  updateKMode();  // เรียก updateK() → updateLS() → calc()
+  updateZR();
+  updateDProvide();
+});
 </script>
 </body>
 </html>
