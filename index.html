@@ -1449,7 +1449,7 @@ function generatePDF() {
     ['W18 (Design ESAL)',          `${W18.toFixed(2)} M ESAL`],
     ['k∞ (Subgrade Modulus)',      `${k_inf.toFixed(1)} pci  [${kModeStr}]`],
     ['Loss of Support (LS)',        `${ls.toFixed(1)}`],
-    ['k design (หลัง LS)',         `${k.toFixed(1)} pci`],
+    ['k design (k_eff)',         `${k.toFixed(1)} pci`],
     ['Ec (PCC Elastic Modulus)',   `${EC_FIXED.toLocaleString('en')} psi`],
     ["Sc' (Modulus of Rupture)",   `${SC_FIXED} psi`],
     ['R / ZR / So',                `${R}% / ${ZR.toFixed(3)} / ${So.toFixed(2)}`],
@@ -1457,7 +1457,7 @@ function generatePDF() {
     [`J (${pavType}) / Cd`,        `${J.toFixed(1)} / ${Cd.toFixed(1)}`],
     ['D Required (calculated)',    `${D_req_raw.toFixed(4)} in  =  ${(D_req_raw*2.54).toFixed(3)} cm`],
     ['D Required (rounded 0.5 in)',`${D_req_in.toFixed(2)} in  =  ${D_req_cm.toFixed(2)} cm`],
-    ['D Provided',                 `${D_prov_in.toFixed(0)} in  =  ${D_prov_cm.toFixed(1)} cm  [${D_prov_label}]`],
+    ['D Provided',                 `${D_prov_in.toFixed(0)} in  =  ${D_prov_cm.toFixed(1)} cm`],
   ];
   inputs.forEach(([lbl, val]) => { rowPDF(lbl, val, y); y += 6; });
   sep(y, '='); y += 6;
@@ -1520,7 +1520,7 @@ function generatePDF() {
   // SUMMARY
   setFont(true, 9);
   doc.text(`D Required  =  ${D_req_in.toFixed(2)} in  (${D_req_cm.toFixed(2)} cm)`, ML, y);
-  doc.text(`D Provided  =  ${D_prov_in.toFixed(0)} in  (${D_prov_cm.toFixed(1)} cm  [${D_prov_label}])`, 105, y);
+  doc.text(`D Provided = ${D_prov_in.toFixed(0)} in (${D_prov_cm.toFixed(1)} cm)`, 105, y);
   y += 6;
   doc.text(`D Margin    =  ${mg_in >= 0 ? '+' : ''}${mg_in.toFixed(3)} in  (${mg_cm >= 0 ? '+' : ''}${mg_cm.toFixed(2)} cm)`, ML, y);
   doc.text(`W18 Capacity=  ${W18_cap.toFixed(2)} M ESAL`, 105, y);
