@@ -1124,7 +1124,7 @@ function updateDProvide() {
     const d_in = parseFloat(sel);
     const d_cm_doh = DOH_D_TABLE[d_in];
     document.getElementById('dProvideDisplay').textContent =
-      `D = ${d_in.toFixed(3)} in = ${d_cm_doh} cm  (ทล. ${d_cm_doh} cm)`;
+      `D ที่ใช้ออกแบบ = ${d_in.toFixed(0)} in (${d_cm.toFixed(0)} cm)`
   }
   calc();
   renderSupportCheck();
