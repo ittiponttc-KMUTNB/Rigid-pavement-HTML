@@ -527,10 +527,13 @@
       <div class="field">
         <label>LS — Loss of Support Factor</label>
         <select id="LS" onchange="updateLS()">
-          <option value="0.0">0.0 — Treated Base (CTB/ATB) — ไม่ลด k</option>
-          <option value="1.0" selected>1.0 — Granular Base (default ทล.)</option>
-          <option value="2.0">2.0 — Unbound / Fine-grained</option>
-          <option value="3.0">3.0 — ไม่มี Subbase / Soil อ่อน</option>
+          <option value="0.0">0.0</option>
+          <option value="0.5">0.5</option>
+          <option value="1.0" selected>1.0</option>
+          <option value="1.5">1.5</option>
+          <option value="2.0">2.0</option>
+          <option value="2.5">2.5</option>
+          <option value="3.0">3.0</option>
         </select>
       </div>
     </div>
@@ -552,6 +555,31 @@
 ══════════════════════════════════ -->
 <div class="section" id="tab-layers">
 
+  <!-- D Slab selector — ย้ายมาบนสุด Tab ③ เพื่อ top-down flow -->
+  <div class="card" style="border-color:var(--accent);background:rgba(240,192,64,0.04)">
+    <div class="card-title" style="color:var(--accent)">D Slab — เลือกความหนาที่จะใช้ (มาตรฐาน ทล.)</div>
+    <div class="input-row single">
+      <div class="field">
+        <label>D ที่กำหนด <span class="unit">(เลือกแล้วเห็นผล PASS/FAIL ทันที)</span></label>
+        <select id="D_select" onchange="updateDProvide()" style="font-size:18px;font-weight:700;color:var(--accent);border-color:var(--accent);background:var(--bg)">
+          <option value="10">10 in = 25 cm</option>
+          <option value="11">11 in = 28 cm</option>
+          <option value="12">12 in = 30 cm</option>
+          <option value="13">13 in = 32 cm</option>
+          <option value="14">14 in = 35 cm</option>
+          <option value="custom">Custom (กรอกเอง)</option>
+        </select>
+      </div>
+    </div>
+    <div id="dCustomBlock" style="display:none" class="input-row single">
+      <div class="field">
+        <label>D Custom <span class="unit">(inches)</span></label>
+        <input type="number" id="D_custom" value="10.0" step="0.5" min="2" max="30" oninput="updateDProvide()">
+      </div>
+    </div>
+    <div class="cbr-result" id="dProvideDisplay" style="margin-top:6px;color:var(--accent)">D = 10 in = 25 cm (ทล. 25 cm)</div>
+  </div>
+
   <div class="card">
     <div class="card-title">Base / Subbase Configuration</div>
     <div class="layer-controls">
@@ -570,6 +598,50 @@
     <div class="card-title">k∞ — Composite Modulus (Real-time)</div>
     <div id="kInfDisplay" class="cbr-result" style="color:var(--accent2)">—</div>
     <div class="hint" style="margin-top:4px">Odemark E_eq + D_total + MR → Digitized Fig.3.3 · LS correction ใน Tab ②</div>
+  </div>
+
+  <!-- ── Subgrade Support Check card ── -->
+  <div class="card" id="supportCheckCard" style="display:none;border-color:var(--accent);background:rgba(240,192,64,0.03)">
+    <div class="card-title" style="color:var(--accent)">Subgrade Support Check — k_design vs k_opt</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:0.05em;margin-bottom:4px">K_OPT (ต่ำสุดที่รองรับได้)</div>
+        <div id="sc_kopt_val" style="font-size:26px;font-weight:700;color:var(--accent2);font-family:'IBM Plex Mono',monospace">—</div>
+        <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:2px">pci</div>
+      </div>
+      <div id="sc_kdes_box" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:0.05em;margin-bottom:4px">K_DESIGN (จาก layers+LS)</div>
+        <div id="sc_kdes_val" style="font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace">—</div>
+        <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:2px">pci</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">
+        <span>0</span>
+        <span id="sc_bar_label" style="color:var(--accent)">—</span>
+        <span id="sc_bar_max">— pci</span>
+      </div>
+      <div style="background:var(--border);border-radius:4px;height:10px;position:relative;overflow:hidden">
+        <div id="sc_bar_opt" style="position:absolute;top:0;bottom:0;width:3px;background:var(--accent2);z-index:2"></div>
+        <div id="sc_bar_des" style="position:absolute;top:0;left:0;bottom:0;border-radius:4px;transition:width 0.3s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:3px">
+        <span style="color:var(--accent2)">▲ k_opt</span>
+        <span id="sc_margin_txt">—</span>
+      </div>
+    </div>
+
+    <div style="text-align:center">
+      <span id="sc_status_badge" style="display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border-radius:20px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;border:1px solid var(--muted);color:var(--muted)">
+        — กรอกข้อมูลให้ครบ
+      </span>
+    </div>
+
+    <div class="hint" style="margin-top:8px">
+      k_opt คำนวณจาก D_slab (บนสุด) + W18 design · อัปเดตอัตโนมัติทุกครั้งที่เปลี่ยน layer, LS หรือ D
+    </div>
   </div>
 
   <div class="card">
@@ -599,31 +671,6 @@
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
     <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent2);font-weight:600;text-transform:uppercase;letter-spacing:0.06em">④ Results</div>
     <button class="btn pdf-btn" onclick="exportPDF()">⬇ Export PDF</button>
-  </div>
-
-  <!-- D Provide selector — อยู่ใน Tab 4 เพื่อเห็น D Required แล้วเลือกได้ทันที -->
-  <div class="card" style="border-color:var(--accent);background:rgba(240,192,64,0.04)">
-    <div class="card-title" style="color:var(--accent)">D Slab — เลือกความหนาที่จะใช้ (มาตรฐาน ทล.)</div>
-    <div class="input-row single">
-      <div class="field">
-        <label>D ที่กำหนด <span class="unit">(เลือกแล้วเห็นผล PASS/FAIL ทันที)</span></label>
-        <select id="D_select" onchange="updateDProvide()" style="font-size:18px;font-weight:700;color:var(--accent);border-color:var(--accent);background:var(--bg)">
-          <option value="10">10 in = 25 cm</option>
-          <option value="11">11 in = 28 cm</option>
-          <option value="12">12 in = 30 cm</option>
-          <option value="13">13 in = 32 cm</option>
-          <option value="14">14 in = 35 cm</option>
-          <option value="custom">Custom (กรอกเอง)</option>
-        </select>
-      </div>
-    </div>
-    <div id="dCustomBlock" style="display:none" class="input-row single">
-      <div class="field">
-        <label>D Custom <span class="unit">(inches)</span></label>
-        <input type="number" id="D_custom" value="10.0" step="0.5" min="2" max="30" oninput="updateDProvide()">
-      </div>
-    </div>
-    <div class="cbr-result" id="dProvideDisplay" style="margin-top:6px;color:var(--accent)">D = 10 in = 25 cm (ทล. 25 cm)</div>
   </div>
 
   <div id="resultContent">
@@ -943,6 +990,7 @@ function updateLS() {
   document.getElementById('lsDisplay').textContent =
     `k∞ = ${k_inf.toFixed(1)} pci  →  k design = ${k_des.toFixed(1)} pci  [${lsStr}]`;
   calc();
+  renderSupportCheck();
 }
 
 function updateKMode() { updateK(); }  // compat shim
@@ -1079,6 +1127,7 @@ function updateDProvide() {
       `D = ${d_in.toFixed(3)} in = ${d_cm_doh} cm  (ทล. ${d_cm_doh} cm)`;
   }
   calc();
+  renderSupportCheck();
 }
 
 function getDProvide_in() {
@@ -1109,6 +1158,7 @@ function getDProvide_label() {
 function calc() {
   updateDPSI();
   if (document.getElementById('tab-result').classList.contains('active')) renderResult();
+  renderSupportCheck();
 }
 
 // ─── Layer management ───────────────────────────────
@@ -1267,10 +1317,10 @@ function renderResult() {
         <div class="result-value" style="color:${passColor}">${D_prov_in.toFixed(0)} in</div>
         <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace">${D_prov_cm.toFixed(1)} cm [${D_prov_label}]</div>
       </div>
-      <div class="result-box">
-        <div class="result-label">Margin</div>
-        <div class="result-value" style="color:${passColor}">${mg_cm >= 0 ? '+' : ''}${mg_cm.toFixed(2)}</div>
-        <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace">${mg_in >= 0 ? '+' : ''}${mg_in.toFixed(3)} in</div>
+      <div class="result-box ${pass ? 'pass' : 'fail'}">
+        <div class="result-label">W18 Ratio</div>
+        <div class="result-value" style="color:${passColor}">${(W18_cap / W18).toFixed(2)}</div>
+        <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace">W18_cap / W18_design</div>
       </div>
     </div>
 
@@ -1411,6 +1461,9 @@ function generatePDF() {
   const mg_in      = D_prov_in - D_req_in;
   const mg_cm      = mg_in * 2.54;
   const W18_cap    = calcW18fromD(D_prov_in, ZR, So, pt, k, J, Cd, SC_FIXED, EC_FIXED) / 1e6;
+  const w18_ratio  = W18 > 0 ? W18_cap / W18 : 0;
+  const k_opt_pdf  = calcKopt(W18, D_prov_in, ZR, So, pt, J, Cd, SC_FIXED, EC_FIXED);
+  const sub_ok     = k_opt_pdf !== null && k >= k_opt_pdf;
 
   // DOS layout
   const ML  = 15;
@@ -1446,18 +1499,21 @@ function generatePDF() {
   sep(y, '-'); y += 5;
 
   const inputs = [
-    ['W18 (Design ESAL)',          `${W18.toFixed(2)} M ESAL`],
-    ['k∞ (Subgrade Modulus)',      `${k_inf.toFixed(1)} pci  [Fig.3.3 CBR ${document.getElementById('CBR').value}%]`],
-    ['Loss of Support (LS)',        `${ls.toFixed(1)}`],
-    ['k design (k_eff)',         `${k.toFixed(1)} pci`],
-    ['Ec (PCC Elastic Modulus)',   `${EC_FIXED.toLocaleString('en')} psi`],
-    ["Sc' (Modulus of Rupture)",   `${SC_FIXED} psi`],
-    ['R / ZR / So',                `${R}% / ${ZR.toFixed(3)} / ${So.toFixed(2)}`],
-    ['pi / pt / DPSI',             `${PI_FIXED.toFixed(1)} / ${pt.toFixed(1)} / ${DPSI.toFixed(2)}`],
-    [`J (${pavType}) / Cd`,        `${J.toFixed(1)} / ${Cd.toFixed(1)}`],
-    ['D Required (calculated)',    `${D_req_raw.toFixed(4)} in  =  ${(D_req_raw*2.54).toFixed(3)} cm`],
-    ['D Required (rounded 0.5 in)',`${D_req_in.toFixed(2)} in  =  ${D_req_cm.toFixed(2)} cm`],
-    ['D Provided',                 `${D_prov_in.toFixed(0)} in  =  ${D_prov_cm.toFixed(1)} cm`],
+    ['W18 (Design ESAL)',           `${W18.toFixed(2)} M ESAL`],
+    ['k∞ (Subgrade Modulus)',       `${k_inf.toFixed(1)} pci  [Fig.3.3 CBR ${document.getElementById('CBR').value}%]`],
+    ['Loss of Support (LS)',         `${ls.toFixed(1)}`],
+    ['k design (k_eff)',            `${k.toFixed(1)} pci`],
+    ['k_opt (min. required)',        k_opt_pdf !== null ? `${k_opt_pdf.toFixed(1)} pci` : 'N/A'],
+    ['Subgrade Support',            k_opt_pdf !== null ? `${sub_ok ? 'PASS' : 'FAIL'}  (margin ${(k - (k_opt_pdf||0)).toFixed(1)} pci)` : 'N/A'],
+    ['Ec (PCC Elastic Modulus)',    `${EC_FIXED.toLocaleString('en')} psi`],
+    ["Sc' (Modulus of Rupture)",    `${SC_FIXED} psi`],
+    ['R / ZR / So',                 `${R}% / ${ZR.toFixed(3)} / ${So.toFixed(2)}`],
+    ['pi / pt / DPSI',              `${PI_FIXED.toFixed(1)} / ${pt.toFixed(1)} / ${DPSI.toFixed(2)}`],
+    [`J (${pavType}) / Cd`,         `${J.toFixed(1)} / ${Cd.toFixed(1)}`],
+    ['D Required (calculated)',     `${D_req_raw.toFixed(4)} in  =  ${(D_req_raw*2.54).toFixed(3)} cm`],
+    ['D Required (rounded 0.5 in)', `${D_req_in.toFixed(2)} in  =  ${D_req_cm.toFixed(2)} cm`],
+    ['D Provided',                  `${D_prov_in.toFixed(0)} in  =  ${D_prov_cm.toFixed(1)} cm`],
+    ['W18 Ratio (cap/design)',       `${w18_ratio.toFixed(3)}`],
   ];
   inputs.forEach(([lbl, val]) => { rowPDF(lbl, val, y); y += 6; });
   sep(y, '='); y += 6;
@@ -1544,12 +1600,93 @@ function generatePDF() {
   doc.save(`${filename}___________AASHTO1993.pdf`);
 }
 
+// ─── calcKopt: หา k ต่ำสุดที่ W18_cap(D,k) = W18_design ────
+function calcKopt(W18_million, D_in, ZR, So, pt, J, Cd, Sc, Ec) {
+  try {
+    const target = Math.log10(W18_million * 1e6);
+    const vLo = rigidLogW18(D_in, ZR, So, pt, 1,    J, Cd, Sc, Ec);
+    const vHi = rigidLogW18(D_in, ZR, So, pt, 3000, J, Cd, Sc, Ec);
+    if (isNaN(vLo) || isNaN(vHi)) return null;
+    if (target < vLo) return 1;
+    if (target > vHi) return null;
+    let lo = 1, hi = 3000;
+    for (let i = 0; i < 200; i++) {
+      const mid = (lo + hi) / 2;
+      const val = rigidLogW18(D_in, ZR, So, pt, mid, J, Cd, Sc, Ec);
+      if (val < target) lo = mid; else hi = mid;
+      if (hi - lo < 0.05) break;
+    }
+    return (lo + hi) / 2;
+  } catch(e) { return null; }
+}
+
+// ─── renderSupportCheck: อัปเดต card ใน Tab ③ ──────────
+function renderSupportCheck() {
+  const card = document.getElementById('supportCheckCard');
+  if (!card) return;
+
+  const W18   = parseFloat(document.getElementById('W18').value) || 0;
+  const ZR    = getZR();
+  const So    = SO_FIXED;
+  const pt    = getPt();
+  const J     = parseFloat(document.getElementById('J').value) || 2.8;
+  const Cd    = parseFloat(document.getElementById('Cd').value) || 1.0;
+  const D_in  = getDProvide_in();
+  const k_des = getK();
+
+  if (W18 <= 0 || D_in <= 0 || k_des <= 0) { card.style.display = 'none'; return; }
+
+  const k_opt = calcKopt(W18, D_in, ZR, So, pt, J, Cd, SC_FIXED, EC_FIXED);
+  card.style.display = 'block';
+
+  if (k_opt === null) {
+    document.getElementById('sc_kopt_val').textContent = 'N/A';
+    document.getElementById('sc_kdes_val').textContent = k_des.toFixed(1);
+    document.getElementById('sc_kdes_box').style.borderColor = 'var(--red)';
+    document.getElementById('sc_kdes_val').style.color = 'var(--red)';
+    document.getElementById('sc_bar_des').style.width = '0%';
+    document.getElementById('sc_bar_opt').style.left  = '50%';
+    document.getElementById('sc_bar_label').textContent = '—';
+    document.getElementById('sc_bar_max').textContent   = '—';
+    document.getElementById('sc_margin_txt').textContent = '—';
+    const badge = document.getElementById('sc_status_badge');
+    badge.textContent = '✗ D ไม่เพียงพอ — เพิ่มความหนา Slab';
+    badge.style.cssText = "display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border-radius:20px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;background:rgba(239,83,80,0.15);color:var(--red);border:1px solid var(--red)";
+    return;
+  }
+
+  const ok       = k_des >= k_opt;
+  const margin   = k_des - k_opt;
+  const barColor = ok ? 'var(--green)' : 'var(--red)';
+  const barMax   = Math.max(k_opt, k_des) * 1.35;
+  const pctOpt   = Math.min(97, (k_opt / barMax) * 100);
+  const pctDes   = Math.min(99, (k_des / barMax) * 100);
+
+  document.getElementById('sc_kopt_val').textContent = k_opt.toFixed(1);
+  document.getElementById('sc_kdes_val').textContent = k_des.toFixed(1);
+  document.getElementById('sc_kdes_val').style.color = barColor;
+  document.getElementById('sc_kdes_box').style.borderColor = barColor;
+  document.getElementById('sc_bar_opt').style.left  = pctOpt.toFixed(1) + '%';
+  document.getElementById('sc_bar_des').style.width = pctDes.toFixed(1) + '%';
+  document.getElementById('sc_bar_des').style.background = barColor;
+  document.getElementById('sc_bar_label').textContent =
+    `k_opt=${k_opt.toFixed(1)}  k_des=${k_des.toFixed(1)}`;
+  document.getElementById('sc_bar_max').textContent = barMax.toFixed(0) + ' pci';
+  document.getElementById('sc_margin_txt').textContent =
+    `margin ${margin >= 0 ? '+' : ''}${margin.toFixed(1)} pci`;
+  document.getElementById('sc_margin_txt').style.color = barColor;
+  const badge = document.getElementById('sc_status_badge');
+  badge.textContent = ok ? '✓ ชั้นรองเพียงพอ' : '✗ ชั้นรองไม่เพียงพอ — เพิ่มความหนาหรือเปลี่ยนวัสดุ';
+  badge.style.cssText = `display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border-radius:20px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;background:${ok?'rgba(102,187,106,0.15)':'rgba(239,83,80,0.15)'};color:${barColor};border:1px solid ${barColor}`;
+}
+
 // ─── Init ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   updateJRange();
-  updateK();       // getMR → updateKInfCard → updateLS → calc
+  updateK();
   updateZR();
   updateDProvide();
+  renderSupportCheck();
 });
 </script>
 </body>
