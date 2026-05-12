@@ -1500,7 +1500,7 @@ function generatePDF() {
 
   const inputs = [
     ['W18 (Design ESAL)',           `${W18.toFixed(2)} M ESAL`],
-    ['k∞ (Subgrade Modulus)',       `${k_inf.toFixed(1)} pci  [Fig.3.3 CBR ${document.getElementById('CBR').value}%]`],
+    ['k_inf (Subgrade Modulus)',       `${k_inf.toFixed(1)} pci  [Fig.3.3 CBR ${document.getElementById('CBR').value}%]`],
     ['Loss of Support (LS)',         `${ls.toFixed(1)}`],
     ['k design (k_eff)',            `${k.toFixed(1)} pci`],
     ['k_opt (min. required)',        k_opt_pdf !== null ? `${k_opt_pdf.toFixed(1)} pci` : 'N/A'],
