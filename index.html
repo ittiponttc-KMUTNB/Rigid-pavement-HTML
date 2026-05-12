@@ -402,45 +402,21 @@
   </div>
 
   <div class="card">
-    <div class="card-title">Subgrade — k Value</div>
-    <div class="input-row single">
+    <div class="card-title">Subgrade — MR</div>
+    <div class="input-row">
       <div class="field">
-        <label>วิธีกำหนด k</label>
-        <select id="kMode" onchange="updateKMode()">
-          <option value="cbr">CBR → MR → k (อัตโนมัติ)</option>
-          <option value="direct">กรอก k โดยตรง (pci)</option>
+        <label>CBR <span class="unit">(%)</span></label>
+        <input type="number" id="CBR" value="5" step="0.5" min="1" max="100" oninput="updateK()">
+      </div>
+      <div class="field">
+        <label>MR Method</label>
+        <select id="mrMethod" onchange="updateK()">
+          <option value="aashto">AASHTO: 1500×CBR</option>
+          <option value="powell">Powell: 2555×CBR^0.64</option>
         </select>
       </div>
     </div>
-
-    <div id="kCbrBlock">
-      <div class="input-row">
-        <div class="field">
-          <label>CBR <span class="unit">(%)</span></label>
-          <input type="number" id="CBR" value="5" step="0.5" min="1" max="100" oninput="updateK()">
-        </div>
-        <div class="field">
-          <label>MR Method</label>
-          <select id="mrMethod" onchange="updateK()">
-            <option value="aashto">AASHTO: 1500×CBR</option>
-            <option value="powell">Powell: 2555×CBR^0.64</option>
-          </select>
-        </div>
-      </div>
-      <div class="cbr-result" id="mrDisplay">MR = 7,500 psi</div>
-    </div>
-
-    <div id="kDirectBlock" style="display:none">
-      <div class="input-row single">
-        <div class="field">
-          <label>k <span class="unit">(pci)</span></label>
-          <input type="number" id="k_direct" value="100" step="10" min="25" max="1000" oninput="updateK()">
-          <div class="hint">ค่าทั่วไป: ดินเหนียว 25–75 · ดินทราย 50–150 · หินคลุก 100–300 pci</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cbr-result" id="kDisplay" style="margin-top:6px">k = 38.7 pci</div>
+    <div class="cbr-result" id="mrDisplay">MR = 7,500 psi (ใช้ในการคำนวณ k∞ ร่วมกับ Base/Subbase ใน Tab ③)</div>
   </div>
 
   <div class="card">
@@ -484,11 +460,7 @@
       </div>
       <div class="field">
         <label>p<sub>t</sub> — Terminal PSI</label>
-        <select id="pt" onchange="calc()">
-          <option value="2.0">2.0 — ถนนรอง</option>
-          <option value="2.5" selected>2.5 — ทางหลวง ✓</option>
-          <option value="3.0">3.0 — ทางหลวงสำคัญ</option>
-        </select>
+        <input type="number" id="pt" value="2.5" step="0.1" min="1.5" max="3.0" oninput="calc()">
       </div>
     </div>
     <div class="cbr-result" id="dpsiDisplay">ΔPSI = 2.00</div>
@@ -550,31 +522,6 @@
   </div>
 
   <div class="card">
-    <div class="card-title">D Slab — ความหนาแผ่นคอนกรีตที่กำหนด</div>
-    <div class="input-row single">
-      <div class="field">
-        <label>D ที่กำหนด <span class="unit">(มาตรฐาน ทล.)</span></label>
-        <select id="D_select" onchange="updateDProvide()">
-          <option value="10">10 in = 25 cm</option>
-          <option value="11">11 in = 28 cm</option>
-          <option value="12">12 in = 30 cm</option>
-          <option value="13">13 in = 32 cm</option>
-          <option value="14">14 in = 35 cm</option>
-          <option value="custom">Custom (กรอกเอง)</option>
-        </select>
-      </div>
-    </div>
-    <div id="dCustomBlock" style="display:none" class="input-row single">
-      <div class="field">
-        <label>D Custom <span class="unit">(inches)</span></label>
-        <input type="number" id="D_custom" value="10.0" step="0.5" min="2" max="30" oninput="updateDProvide()">
-      </div>
-    </div>
-    <div class="cbr-result" id="dProvideDisplay" style="margin-top:6px;color:var(--accent)">D = 10.000 in = 25.00 cm (ทล. 25 cm)</div>
-    <div class="hint" style="margin-top:4px">ทล. กำหนด: 10→25, 11→28, 12→30, 13→32, 14→35 cm · ดู D Required ได้ที่ Tab ④</div>
-  </div>
-
-  <div class="card">
     <div class="card-title">Loss of Support (LS) — ปรับแก้ k</div>
     <div class="input-row single">
       <div class="field">
@@ -607,7 +554,6 @@
 
   <div class="card">
     <div class="card-title">Base / Subbase Configuration</div>
-    <div class="warn-note">⚠ Layers เหล่านี้ไม่กระทบการคำนวณ D (Rigid ใช้ k ของ Subgrade) — บันทึกสำหรับรายงานเท่านั้น</div>
     <div class="layer-controls">
       <button class="btn accent" onclick="addLayer()">+ เพิ่มชั้น</button>
       <button class="btn" onclick="loadPreset()">โครงสร้างมาตรฐาน</button>
@@ -615,8 +561,15 @@
     <div id="layerList"></div>
     <div id="layerEmpty" class="empty">
       <div class="icon">📋</div>
-      กดปุ่ม "เพิ่มชั้น" หรือ "โครงสร้างมาตรฐาน"
+      กดปุ่ม "เพิ่มชั้น" หรือ "โครงสร้างมาตรฐาน"<br>
+      <span style="font-size:11px;color:var(--muted)">ถ้าไม่มี layer — k∞ คำนวณจาก MR subgrade เท่านั้น</span>
     </div>
+  </div>
+
+  <div class="card" id="kInfCard" style="display:none">
+    <div class="card-title">k∞ — Composite Modulus (Real-time)</div>
+    <div id="kInfDisplay" class="cbr-result" style="color:var(--accent2)">—</div>
+    <div class="hint" style="margin-top:4px">Odemark E_eq + D_total + MR → Digitized Fig.3.3 · LS correction ใน Tab ②</div>
   </div>
 
   <div class="card">
@@ -643,11 +596,38 @@
      TAB 4 : RESULTS
 ══════════════════════════════════ -->
 <div class="section" id="tab-result">
-  <div style="text-align:right;margin-bottom:10px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent2);font-weight:600;text-transform:uppercase;letter-spacing:0.06em">④ Results</div>
     <button class="btn pdf-btn" onclick="exportPDF()">⬇ Export PDF</button>
   </div>
+
+  <!-- D Provide selector — อยู่ใน Tab 4 เพื่อเห็น D Required แล้วเลือกได้ทันที -->
+  <div class="card" style="border-color:var(--accent);background:rgba(240,192,64,0.04)">
+    <div class="card-title" style="color:var(--accent)">D Slab — เลือกความหนาที่จะใช้ (มาตรฐาน ทล.)</div>
+    <div class="input-row single">
+      <div class="field">
+        <label>D ที่กำหนด <span class="unit">(เลือกแล้วเห็นผล PASS/FAIL ทันที)</span></label>
+        <select id="D_select" onchange="updateDProvide()" style="font-size:18px;font-weight:700;color:var(--accent);border-color:var(--accent);background:var(--bg)">
+          <option value="10">10 in = 25 cm</option>
+          <option value="11">11 in = 28 cm</option>
+          <option value="12">12 in = 30 cm</option>
+          <option value="13">13 in = 32 cm</option>
+          <option value="14">14 in = 35 cm</option>
+          <option value="custom">Custom (กรอกเอง)</option>
+        </select>
+      </div>
+    </div>
+    <div id="dCustomBlock" style="display:none" class="input-row single">
+      <div class="field">
+        <label>D Custom <span class="unit">(inches)</span></label>
+        <input type="number" id="D_custom" value="10.0" step="0.5" min="2" max="30" oninput="updateDProvide()">
+      </div>
+    </div>
+    <div class="cbr-result" id="dProvideDisplay" style="margin-top:6px;color:var(--accent)">D = 10 in = 25 cm (ทล. 25 cm)</div>
+  </div>
+
   <div id="resultContent">
-    <div class="empty"><div class="icon">🔢</div>กรอก Input แล้วมาดูผลลัพธ์ที่นี่</div>
+    <div class="empty"><div class="icon">🔢</div>กรอก Input ใน Tab ①–③ แล้วผลจะแสดงที่นี่</div>
   </div>
 </div>
 
@@ -768,15 +748,15 @@ const COLORS   = ['#f0c040','#4fc3f7','#66bb6a','#ffa726','#ce93d8','#ef9a9a','#
 
 // ─── Material Library (Rigid) ───────────────────────
 const LAYER_TYPES = [
-  { name:'รองผิวคอนกรีตด้วย AC',                    e_mpa:2500, pdfName:'AC Leveling Course (under PCC)' },
-  { name:'CTB (หินคลุกปรับปรุงด้วยปูนซีเมนต์)',      e_mpa:1200, pdfName:'Cement Treated Base (CTB)' },
-  { name:'หินคลุกผสมซีเมนต์ UCS 24.5 ksc.',          e_mpa:850,  pdfName:'MOD. Crushed Rock Base UCS 24.5 ksc.' },
-  { name:'หินคลุก CBR 80%',                           e_mpa:350,  pdfName:'Crushed Rock Base CBR 80%' },
-  { name:'ดินซีเมนต์ UCS 17.5 ksc.',                  e_mpa:350,  pdfName:'Soil Cement Subbase UCS 17.5 ksc.' },
-  { name:'วัสดุหมุนเวียน (Recycling)',                e_mpa:850,  pdfName:'Recycled Material' },
-  { name:'วัสดุมวลรวม CBR 25%',                       e_mpa:150,  pdfName:'Aggregate Subbase CBR 25%' },
-  { name:'วัสดุคัดเลือก ก',                          e_mpa:100,  pdfName:'Selected Material Type A' },
-  { name:'Custom',                                     e_mpa:0,    pdfName:'Custom Material' },
+  { name:'รองผิวคอนกรีตด้วย AC',                    e_mpa:2500, D_default:5,  pdfName:'AC Leveling Course (under PCC)' },
+  { name:'CTB (หินคลุกปรับปรุงด้วยปูนซีเมนต์)',      e_mpa:1200, D_default:15, pdfName:'Cement Treated Base (CTB)' },
+  { name:'หินคลุกผสมซีเมนต์ UCS 24.5 ksc.',          e_mpa:850,  D_default:15, pdfName:'MOD. Crushed Rock Base UCS 24.5 ksc.' },
+  { name:'หินคลุก CBR 80%',                           e_mpa:350,  D_default:15, pdfName:'Crushed Rock Base CBR 80%' },
+  { name:'ดินซีเมนต์ UCS 17.5 ksc.',                  e_mpa:350,  D_default:15, pdfName:'Soil Cement Subbase UCS 17.5 ksc.' },
+  { name:'วัสดุหมุนเวียน (Recycling)',                e_mpa:850,  D_default:15, pdfName:'Recycled Material' },
+  { name:'วัสดุมวลรวม CBR 25%',                       e_mpa:150,  D_default:20, pdfName:'Aggregate Subbase CBR 25%' },
+  { name:'วัสดุคัดเลือก ก',                          e_mpa:100,  D_default:20, pdfName:'Selected Material Type A' },
+  { name:'Custom',                                     e_mpa:0,    D_default:15, pdfName:'Custom Material' },
 ];
 
 let layers = [];
@@ -818,7 +798,94 @@ function updateJRange() {
   calc();
 }
 
-// ─── Loss of Support — Digitized AASHTO 1993 Fig.3.4 ──
+// ─── Composite k∞ Engine — Digitized AASHTO 1993 Fig.3.3 ──
+// Pre-computed grid จาก RBFInterpolator (thin_plate_spline)
+// Shape: MR[4] × D[8] × E[10]
+const CK_GRID = {"E":[15000,30000,50000,75000,100000,150000,200000,300000,500000,1000000],"D":[6,8,10,12,14,16,18,20],"MR":[3000,4500,7500,15000],"k":[[[80.0,94.9,100.0,150.6,191.8,237.7,265.8,313.2,389.6,505.7],[117.4,134.5,154.9,206.5,248.5,294.9,323.4,379.5,473.9,606.6],[162.0,181.9,223.4,276.4,315.2,354.5,378.6,441.8,551.1,693.8],[209.5,228.7,293.8,351.2,391.8,416.9,433.2,501.8,621.5,769.6],[250.0,268.0,350.0,414.5,466.7,472.3,483.6,557.7,684.3,835.3],[269.6,297.2,377.4,449.0,519.3,506.7,523.3,605.9,738.3,892.4],[281.0,316.6,384.2,447.7,531.0,513.4,547.2,643.5,783.1,942.2],[290.0,328.5,378.4,420.0,500.0,497.8,555.3,669.8,819.1,985.8]],[[220.0,218.8,300.0,317.2,350.0,371.0,392.5,447.2,549.2,706.5],[235.4,261.1,318.2,354.9,377.6,412.5,440.2,516.9,652.5,835.7],[250.0,296.4,350.0,388.3,400.0,447.3,475.5,579.4,746.5,945.7],[280.0,326.7,410.0,425.3,440.0,487.3,510.0,642.8,833.0,1039.9],[300.0,350.0,420.0,450.0,465.9,523.6,555.3,707.7,911.2,1120.4],[300.0,368.7,440.0,449.7,500.0,536.4,600.0,768.1,978.9,1189.2],[320.0,380.8,429.1,400.8,550.0,512.4,650.0,816.2,1034.6,1248.4],[338.0,387.1,405.6,329.2,250.0,465.3,649.8,847.2,1077.4,1300.0]],[[390.0,414.2,450.0,541.3,596.0,643.1,672.1,737.5,865.4,1078.9],[421.3,456.3,515.8,615.0,680.3,734.5,765.4,847.1,1008.3,1255.9],[434.0,479.9,558.5,682.3,766.0,821.6,847.6,942.4,1131.7,1403.1],[446.5,496.2,585.7,748.5,864.0,909.2,924.3,1028.8,1238.9,1526.9],[460.0,508.2,600.0,801.1,958.7,981.1,988.6,1104.0,1330.3,1631.7],[473.5,516.8,607.6,822.8,1024.2,1017.3,1030.9,1163.8,1405.6,1720.9],[487.4,522.1,602.9,804.7,1039.4,1009.9,1046.9,1205.7,1465.4,1797.2],[500.0,524.4,588.3,754.1,990.0,967.8,1039.8,1230.4,1511.1,1862.9]],[[600.0,694.5,800.0,931.6,1039.5,1177.3,1262.1,1383.7,1570.0,1892.3],[664.0,756.6,881.1,1050.8,1187.4,1351.6,1445.5,1580.1,1793.0,2000.0],[707.1,797.0,937.9,1141.0,1303.0,1488.4,1588.5,1733.1,1969.2,2000.0],[737.5,824.4,976.1,1204.1,1384.8,1588.5,1694.9,1850.6,2000.0,2000.0],[760.0,843.3,1000.0,1240.5,1430.0,1651.5,1767.3,1937.7,2000.0,2000.0],[776.5,856.4,1014.2,1253.8,1441.0,1681.6,1810.0,1999.2,2000.0,2000.0],[789.3,865.3,1019.6,1250.1,1426.2,1686.3,1828.9,2000.0,2000.0,2000.0],[800.0,870.9,1018.2,1236.2,1400.0,1673.8,1830.4,2000.0,2000.0,2000.0]]]};
+
+// trilinear log-log-log interpolation บน CK_GRID
+function _gridLookupK(E_psi, D_in, MR_psi) {
+  const Eg  = CK_GRID.E;
+  const Dg  = CK_GRID.D;
+  const MRg = CK_GRID.MR;
+  const kg  = CK_GRID.k;
+
+  // clamp
+  const E  = Math.max(Eg[0],  Math.min(Eg[Eg.length-1],  E_psi));
+  const D  = Math.max(Dg[0],  Math.min(Dg[Dg.length-1],  D_in));
+  const MR = Math.max(MRg[0], Math.min(MRg[MRg.length-1], MR_psi));
+
+  // หา bracket index
+  function bracket(arr, v) {
+    for (let i = 0; i < arr.length-1; i++) {
+      if (v <= arr[i+1]) return i;
+    }
+    return arr.length-2;
+  }
+  function frac(arr, i, v) {
+    return (Math.log10(v) - Math.log10(arr[i])) / (Math.log10(arr[i+1]) - Math.log10(arr[i]));
+  }
+
+  const iMR = bracket(MRg, MR); const tMR = frac(MRg, iMR, MR);
+  const iD  = bracket(Dg,  D);  const tD  = frac(Dg,  iD,  D);
+  const iE  = bracket(Eg,  E);  const tE  = frac(Eg,  iE,  E);
+
+  // trilinear บน log(k)
+  function lk(mr,d,e) { return Math.log10(Math.max(1, kg[mr][d][e])); }
+
+  const c000=lk(iMR,iD,iE),   c001=lk(iMR,iD,iE+1);
+  const c010=lk(iMR,iD+1,iE), c011=lk(iMR,iD+1,iE+1);
+  const c100=lk(iMR+1,iD,iE), c101=lk(iMR+1,iD,iE+1);
+  const c110=lk(iMR+1,iD+1,iE),c111=lk(iMR+1,iD+1,iE+1);
+
+  const c00 = c000*(1-tE)+c001*tE;
+  const c01 = c010*(1-tE)+c011*tE;
+  const c10 = c100*(1-tE)+c101*tE;
+  const c11 = c110*(1-tE)+c111*tE;
+  const c0  = c00*(1-tD)+c01*tD;
+  const c1  = c10*(1-tD)+c11*tD;
+  const lk_out = c0*(1-tMR)+c1*tMR;
+  return Math.max(50, Math.min(2000, Math.pow(10, lk_out)));
+}
+
+// Odemark E_eq (weighted cubic mean) — same as Python
+// layers = [{D_cm, E_MPa}, ...]
+function odemarkEeq(layers) {
+  const CM_TO_IN  = 0.393701;
+  const MPa_TO_PSI = 145.038;
+  let sumHE = 0, sumH = 0;
+  for (const l of layers) {
+    if (!l.D || !l.e_mpa || l.D <= 0 || l.e_mpa <= 0) continue;
+    const h = l.D * CM_TO_IN;
+    const e = l.e_mpa * MPa_TO_PSI;
+    sumH  += h;
+    sumHE += h * Math.pow(e, 1/3);
+  }
+  if (sumH <= 0) return null;
+  return { E_eq_psi: Math.pow(sumHE / sumH, 3), D_total_in: sumH };
+}
+
+// หา k∞ รวม (composite) จาก layers + MR_psi
+// ถ้าไม่มี layer → fallback MR/19.4
+function calcKInf(layers, MR_psi) {
+  const validLayers = layers.filter(l => l.D > 0 && l.e_mpa > 0);
+  if (validLayers.length === 0) {
+    // fallback: MR/19.4
+    return { k_inf: MR_psi / 19.4, method: 'MR/19.4 (ไม่มี Base/Subbase)', E_eq_psi: null, D_total_in: null };
+  }
+  const od = odemarkEeq(validLayers);
+  if (!od) return { k_inf: MR_psi / 19.4, method: 'MR/19.4 (fallback)', E_eq_psi: null, D_total_in: null };
+  const k = _gridLookupK(od.E_eq_psi, od.D_total_in, MR_psi);
+  return {
+    k_inf: k,
+    method: 'Fig.3.3 (Odemark+Grid)',
+    E_eq_psi: od.E_eq_psi,
+    D_total_in: od.D_total_in,
+  };
+}
+
+// ─── k Mode ─────────────────────────────────────────
+function updateKMode() { updateK(); }  // compat shim (no-op)
 // log-log interpolation (ตรวจสอบกับ nomograph จริง: k∞=540,LS=1→170 ✓)
 const LS_K_PTS = [10,   50,  100,  500, 1000];
 const LS_K1    = [ 6,   25,   40,  160,  270];  // LS=1
@@ -865,11 +932,7 @@ function getLS() {
 }
 
 function getKInf() {
-  // k∞ ก่อน apply LS
-  if (document.getElementById('kMode').value === 'direct') {
-    return parseFloat(document.getElementById('k_direct').value) || 100;
-  }
-  return getMR() / 19.4;
+  return calcKInf(layers, getMR()).k_inf;
 }
 
 function updateLS() {
@@ -881,12 +944,8 @@ function updateLS() {
     `k∞ = ${k_inf.toFixed(1)} pci  →  k design = ${k_des.toFixed(1)} pci  [${lsStr}]`;
   calc();
 }
-function updateKMode() {
-  const mode = document.getElementById('kMode').value;
-  document.getElementById('kCbrBlock').style.display    = mode === 'cbr'    ? 'block' : 'none';
-  document.getElementById('kDirectBlock').style.display = mode === 'direct' ? 'block' : 'none';
-  updateK();
-}
+
+function updateKMode() { updateK(); }  // compat shim
 
 function getMR() {
   const cbr = parseFloat(document.getElementById('CBR').value) || 5;
@@ -895,23 +954,47 @@ function getMR() {
     : 2555 * Math.pow(cbr, 0.64);
 }
 
-function getK() {
-  // k_design = k∞ หลัง apply LS — ใช้ในสมการออกแบบ
-  return applyLS(getKInf(), getLS());
+function getKInf() {
+  const mr  = getMR();
+  const res = calcKInf(layers, mr);
+  return res.k_inf;
+}
+
+function getKInfResult() {
+  // คืน full result object สำหรับ display
+  return calcKInf(layers, getMR());
 }
 
 function updateK() {
-  const mode = document.getElementById('kMode').value;
-  if (mode === 'cbr') {
-    const mr   = getMR();
-    const kinf = mr / 19.4;
-    document.getElementById('mrDisplay').textContent = `MR = ${mr.toLocaleString('en',{maximumFractionDigits:0})} psi`;
-    document.getElementById('kDisplay').textContent  = `k∞ = ${kinf.toFixed(1)} pci  (= MR / 19.4)`;
+  const mr = getMR();
+  document.getElementById('mrDisplay').textContent =
+    `MR = ${mr.toLocaleString('en',{maximumFractionDigits:0})} psi — ใช้ใน Fig.3.3 ร่วมกับ Base/Subbase (Tab ③)`;
+  updateKInfCard();
+  updateLS();
+}
+
+function updateKInfCard() {
+  const mr  = getMR();
+  const res = calcKInf(layers, mr);
+  const card = document.getElementById('kInfCard');
+
+  // แสดง card เสมอ
+  card.style.display = 'block';
+
+  let txt = '';
+  if (res.E_eq_psi) {
+    const E_mpa = (res.E_eq_psi / 145.038).toFixed(0);
+    const D_cm  = (res.D_total_in * 2.54).toFixed(1);
+    txt = `E_eq = ${E_mpa} MPa (${res.E_eq_psi.toFixed(0)} psi) · D_total = ${D_cm} cm (${res.D_total_in.toFixed(2)} in)`;
+    txt += `\nk∞ = ${res.k_inf.toFixed(1)} pci  [${res.method}]`;
   } else {
-    const kinf = parseFloat(document.getElementById('k_direct').value) || 100;
-    document.getElementById('kDisplay').textContent = `k∞ = ${kinf.toFixed(1)} pci`;
+    txt = `k∞ = ${res.k_inf.toFixed(1)} pci  [${res.method}]`;
   }
-  updateLS();  // อัปเดต lsDisplay และ calc() ต่อ
+  document.getElementById('kInfDisplay').textContent = txt;
+}
+
+function getK() {
+  return applyLS(getKInf(), getLS());
 }
 
 function updateZR() {
@@ -1033,7 +1116,7 @@ function addLayer() {
   const id   = ++layerCounter;
   const used = layers.map(l => l.name);
   const def  = LAYER_TYPES.find(t => !used.includes(t.name)) || LAYER_TYPES[0];
-  layers.push({ id, name: def.name, e_mpa: def.e_mpa, D: 15, pdfName: def.pdfName });
+  layers.push({ id, name: def.name, e_mpa: def.e_mpa, D: def.D_default || 15, pdfName: def.pdfName });
   renderLayers();
 }
 
@@ -1056,8 +1139,12 @@ function updateLayerField(id, field, value) {
   if (!layer) return;
   if (field === 'name') {
     const match = LAYER_TYPES.find(t => t.name === value);
-    if (match) { layer.name = match.name; layer.e_mpa = match.e_mpa; layer.pdfName = match.pdfName; }
-    else layer.name = value;
+    if (match) {
+      layer.name    = match.name;
+      layer.e_mpa   = match.e_mpa;
+      layer.pdfName = match.pdfName;
+      layer.D       = match.D_default || 15;
+    } else layer.name = value;
   } else if (field === 'D') {
     layer.D = parseFloat(value) || 0;
   } else if (field === 'e_mpa') {
@@ -1099,17 +1186,19 @@ function renderLayers() {
         <div class="field">
           <label>ความหนา <span class="unit">(cm)</span></label>
           <input type="number" value="${layer.D}" step="1" min="1"
-            oninput="layers.find(l=>l.id===${layer.id}).D=parseFloat(this.value)||0">
+            oninput="layers.find(l=>l.id===${layer.id}).D=parseFloat(this.value)||0;updateKInfCard();updateLS();">
         </div>
         <div class="field">
           <label>E <span class="unit">(MPa)</span></label>
           <input type="number" value="${layer.e_mpa}" step="50" min="0"
             ${!isCustom ? 'style="opacity:0.5;background:var(--surface2)!important" readonly' : ''}
-            oninput="updateLayerField(${layer.id},'e_mpa',this.value)">
+            oninput="updateLayerField(${layer.id},'e_mpa',this.value);updateKInfCard();updateLS();">
         </div>
       </div>
     </div>`;
   }).join('');
+  updateKInfCard();
+  updateLS();
 }
 
 // ─── Render Results ──────────────────────────────────
@@ -1119,8 +1208,12 @@ function renderResult() {
   const So          = SO_FIXED;
   const pt          = getPt();
   const k_inf       = getKInf();
+  const kInfRes     = getKInfResult();
   const ls          = getLS();
   const k           = getK();
+  const kModeStr    = kInfRes.E_eq_psi
+    ? `Fig.3.3 [E_eq=${(kInfRes.E_eq_psi/145.038).toFixed(0)} MPa, D=${(kInfRes.D_total_in*2.54).toFixed(1)} cm]`
+    : 'MR/19.4 (ไม่มี Base/Subbase)';
   const J           = parseFloat(document.getElementById('J').value) || 2.8;
   const Cd          = parseFloat(document.getElementById('Cd').value) || 1.0;
   const R           = parseInt(document.getElementById('R').value);
@@ -1130,10 +1223,6 @@ function renderResult() {
   const D_prov_in   = getDProvide_in();
   const D_prov_cm   = getDProvide_cm();
   const D_prov_label = getDProvide_label();
-  const kMode       = document.getElementById('kMode').value;
-  const kModeStr    = kMode === 'cbr'
-    ? `CBR→MR(${document.getElementById('mrMethod').value.toUpperCase()})→k`
-    : 'Direct Input';
 
   if (W18 <= 0 || k <= 0) {
     document.getElementById('resultContent').innerHTML = `
@@ -1143,7 +1232,8 @@ function renderResult() {
 
   const D_req_raw = calcDRequired(W18, ZR, So, pt, k, J, Cd, SC_FIXED, EC_FIXED);
   const D_req_in  = roundUp05(D_req_raw);
-  const D_req_cm  = D_req_in * 2.54;
+  const D_req_cm_doh = DOH_D_TABLE[D_req_in] || +(D_req_in * 2.54).toFixed(2);
+  const D_req_cm  = D_req_in * 2.54;  // exact ×2.54 สำหรับ margin calculation
   const pass      = D_prov_in >= D_req_in - 0.001;
   const mg_in     = D_prov_in - D_req_in;
   const mg_cm     = mg_in * 2.54;
@@ -1166,8 +1256,8 @@ function renderResult() {
     <div class="card-title">Slab Thickness Required</div>
     <div style="background:rgba(79,195,247,0.06);border:2px solid var(--accent2);border-radius:10px;padding:16px;text-align:center;margin-bottom:10px">
       <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:0.06em;margin-bottom:6px">D REQUIRED (ปัดขึ้น 0.5 in)</div>
-      <div style="font-size:44px;font-weight:700;color:var(--accent2);font-family:'IBM Plex Mono',monospace;line-height:1">${D_req_cm.toFixed(2)}</div>
-      <div style="font-size:15px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:4px">cm &nbsp;|&nbsp; ${D_req_in.toFixed(2)} in</div>
+      <div style="font-size:44px;font-weight:700;color:var(--accent2);font-family:'IBM Plex Mono',monospace;line-height:1">${D_req_cm_doh}</div>
+      <div style="font-size:15px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:4px">cm ${DOH_D_TABLE[D_req_in] ? '[ทล.]' : '[×2.54]'} &nbsp;|&nbsp; ${D_req_in.toFixed(1)} in</div>
       <div style="font-size:11px;color:var(--muted);margin-top:4px;font-family:'IBM Plex Mono',monospace">(คำนวณได้ ${D_req_raw.toFixed(4)} in ก่อนปัด)</div>
     </div>
 
@@ -1297,17 +1387,17 @@ function generatePDF() {
   const So         = SO_FIXED;
   const pt         = getPt();
   const k_inf      = getKInf();
+  const kInfRes    = getKInfResult();
   const ls         = getLS();
-  const k          = getK();   // k_design = applyLS(k_inf, ls)
+  const k          = getK();
   const J          = parseFloat(document.getElementById('J').value) || 2.8;
   const Cd         = parseFloat(document.getElementById('Cd').value) || 1.0;
   const R          = parseInt(document.getElementById('R').value);
   const DPSI       = PI_FIXED - pt;
   const pavType    = document.getElementById('pavType').value.toUpperCase();
-  const kMode      = document.getElementById('kMode').value;
-  const kModeStr   = kMode === 'cbr'
-    ? `CBR ${document.getElementById('CBR').value}%→MR/${document.getElementById('mrMethod').value === 'aashto' ? '1500xCBR' : 'Powell'}→k∞`
-    : 'Direct Input';
+  const kModeStr   = kInfRes.E_eq_psi
+    ? `Fig.3.3 CBR ${document.getElementById('CBR').value}% E_eq=${(kInfRes.E_eq_psi/145.038).toFixed(0)} MPa`
+    : `MR/19.4 CBR ${document.getElementById('CBR').value}%`;
   const projectName = document.getElementById('projectName').value.trim() || 'Untitled Project';
   const D_prov_in  = getDProvide_in();
   const D_prov_cm  = getDProvide_cm();
@@ -1457,7 +1547,7 @@ function generatePDF() {
 // ─── Init ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   updateJRange();
-  updateKMode();  // เรียก updateK() → updateLS() → calc()
+  updateK();       // getMR → updateKInfCard → updateLS → calc
   updateZR();
   updateDProvide();
 });
