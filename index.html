@@ -1318,7 +1318,7 @@ function renderResult() {
     html += `
     <div class="card">
       <div class="card-title">Base / Subbase Layers </div>
-      <div class="warn-note" style="margin-bottom:8px">⚠ แนะนำความหนาขั้นต่ำ 15 และไม่เกิน 30 cm </div>
+      <div class="warn-note" style="margin-bottom:8px">⚠ แนะนำความหนาขั้นต่ำของดิน 15 และไม่เกิน 30 cm </div>
       <table class="info-table">
         <tr>
           <td style="color:var(--muted);font-size:10px">ชั้น</td>
@@ -1414,7 +1414,7 @@ function generatePDF() {
 
   // DOS layout
   const ML  = 15;
-  const PR  = 190;
+  const PR  = 195;
   const EQ  = '===============================================================================================';
   const DA  = '-----------------------------------------------------------------------------------------------';
   let y = 15;
@@ -1447,7 +1447,7 @@ function generatePDF() {
 
   const inputs = [
     ['W18 (Design ESAL)',          `${W18.toFixed(2)} M ESAL`],
-    ['k∞ (Subgrade Modulus)',      `${k_inf.toFixed(1)} pci  [${kModeStr}]`],
+    ['k∞ (Subgrade Modulus)',      `${k_inf.toFixed(1)} pci  [Fig.3.3 CBR ${document.getElementById('CBR').value}%]`],
     ['Loss of Support (LS)',        `${ls.toFixed(1)}`],
     ['k design (k_eff)',         `${k.toFixed(1)} pci`],
     ['Ec (PCC Elastic Modulus)',   `${EC_FIXED.toLocaleString('en')} psi`],
