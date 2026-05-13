@@ -1498,24 +1498,87 @@ function generatePDF() {
   setFont(true, 9); doc.text('DESIGN INPUT', ML, y); y += 4;
   sep(y, '-'); y += 5;
 
+  const MR_psi = parseFloat(document.getElementById('CBR').value) * 1500;
   const inputs = [
     ['W18 (Design ESAL)',           `${W18.toFixed(2)} M ESAL`],
-    ['k_inf (Subgrade Modulus)',       `${k_inf.toFixed(1)} pci  [Fig.3.3 CBR ${document.getElementById('CBR').value}%]`],
-    ['Loss of Support (LS)',         `${ls.toFixed(1)}`],
-    ['k design (k_eff)',            `${k.toFixed(1)} pci`],
-    ['k_opt (min. required)',        k_opt_pdf !== null ? `${k_opt_pdf.toFixed(1)} pci` : 'N/A'],
-    ['Subgrade Support',            k_opt_pdf !== null ? `${sub_ok ? 'PASS' : 'FAIL'}  (margin ${(k - (k_opt_pdf||0)).toFixed(1)} pci)` : 'N/A'],
-    ['Ec (PCC Elastic Modulus)',    `${EC_FIXED.toLocaleString('en')} psi`],
-    ["Sc' (Modulus of Rupture)",    `${SC_FIXED} psi`],
-    ['R / ZR / So',                 `${R}% / ${ZR.toFixed(3)} / ${So.toFixed(2)}`],
-    ['pi / pt / DPSI',              `${PI_FIXED.toFixed(1)} / ${pt.toFixed(1)} / ${DPSI.toFixed(2)}`],
-    [`J (${pavType}) / Cd`,         `${J.toFixed(1)} / ${Cd.toFixed(1)}`],
-    ['D Required (calculated)',     `${D_req_raw.toFixed(4)} in  =  ${(D_req_raw*2.54).toFixed(3)} cm`],
-    ['D Required (rounded 0.5 in)', `${D_req_in.toFixed(2)} in  =  ${D_req_cm.toFixed(2)} cm`],
-    ['D Provided',                  `${D_prov_in.toFixed(0)} in  =  ${D_prov_cm.toFixed(1)} cm`],
-    ['W18 Ratio (cap/design)',       `${w18_ratio.toFixed(3)}`],
+    ['k_inf (Subgrade Modulus)',    `${k_inf.toFixed(1)} pci  [Fig.3.3 CBR ${document.getElementById('CBR').value}%]`],
+    ['MR (Roadbed Soil)',           `${MR_psi.toLocaleString('en')} psi  [CBR ${document.getElementById('CBR').value}%]`],
+    ['Loss of Support (LS)',        `${ls.toFixed(1)}`],
+    ['k design (k_eff)',           `${k.toFixed(1)} pci`],
+    ['k_opt (min. required)',       k_opt_pdf !== null ? `${k_opt_pdf.toFixed(1)} pci` : 'N/A'],
+    ['Subgrade Support',           k_opt_pdf !== null ? `${sub_ok ? 'PASS' : 'FAIL'}  (margin ${(k - (k_opt_pdf||0)).toFixed(1)} pci)` : 'N/A'],
+    ['Ec (PCC Elastic Modulus)',   `${EC_FIXED.toLocaleString('en')} psi`],
+    ["Sc' (Modulus of Rupture)",   `${SC_FIXED} psi`],
+    ['R / ZR / So',                `${R}% / ${ZR.toFixed(3)} / ${So.toFixed(2)}`],
+    ['pi / pt / DPSI',             `${PI_FIXED.toFixed(1)} / ${pt.toFixed(1)} / ${DPSI.toFixed(2)}`],
+    [`J (${pavType}) / Cd`,        `${J.toFixed(1)} / ${Cd.toFixed(1)}`],
+    ['D Required (calculated)',    `${D_req_raw.toFixed(4)} in  =  ${(D_req_raw*2.54).toFixed(3)} cm`],
+    ['D Provided',                 `${D_prov_in.toFixed(0)} in  =  ${D_prov_cm.toFixed(1)} cm`],
+    ['W18 Ratio (cap/design)',      `${w18_ratio.toFixed(3)}`],
   ];
   inputs.forEach(([lbl, val]) => { rowPDF(lbl, val, y); y += 6; });
+  sep(y, '='); y += 6;
+
+  // E_eq ODEMARK CALCULATION
+  setFont(true, 9); doc.text('E_eq ODEMARK CALCULATION (Base/Subbase)', ML, y); y += 4;
+  sep(y, '-'); y += 5;
+
+  const validLayers = layers.filter(l => l.D > 0 && l.e_mpa > 0);
+  if (validLayers.length === 0) {
+    setFont(false, 9);
+    doc.text('No Base/Subbase layers — k-inf from MR/19.4 directly', ML, y); y += 6;
+  } else {
+    // column positions
+    const CE = { no:ML, mat:ML+8, h:ML+108, e:ML+128, cbrt:ML+152, he:ML+178 };
+    setFont(true, 8);
+    doc.text('No', CE.no, y);
+    doc.text('Material', CE.mat, y);
+    doc.text('h(cm)', CE.h,    y, { align:'right' });
+    doc.text('E(MPa)', CE.e,   y, { align:'right' });
+    doc.text('E^(1/3)', CE.cbrt, y, { align:'right' });
+    doc.text('h x E^(1/3)', CE.he, y, { align:'right' });
+    y += 3; sep(y, '-'); y += 5;
+
+    const MPa_TO_PSI = 145.038;
+    const CM_TO_IN   = 0.393701;
+    let sumH = 0, sumHE = 0;
+
+    validLayers.forEach((layer, i) => {
+      const h_in  = layer.D * CM_TO_IN;
+      const e_psi = layer.e_mpa * MPa_TO_PSI;
+      const cbrt  = Math.pow(e_psi, 1/3);
+      const hE    = h_in * cbrt;
+      sumH  += h_in;
+      sumHE += hE;
+
+      setFont(false, 8);
+      doc.text(`${i+1}`, CE.no, y);
+      const matName = (layer.pdfName || layer.name).substring(0, 42);
+      doc.text(matName,              CE.mat,  y);
+      doc.text(layer.D.toFixed(1),   CE.h,    y, { align:'right' });
+      doc.text(layer.e_mpa.toFixed(0), CE.e,  y, { align:'right' });
+      doc.text(cbrt.toFixed(4),      CE.cbrt, y, { align:'right' });
+      doc.text(hE.toFixed(2),        CE.he,   y, { align:'right' });
+      y += 6;
+    });
+
+    sep(y, '-'); y += 5;
+
+    // Total row — แสดงความหนารวมทั้ง cm และ in
+    const totalH_cm = validLayers.reduce((s, l) => s + l.D, 0);
+    const totalH_in = totalH_cm * CM_TO_IN;
+    setFont(true, 8);
+    doc.text('Total', CE.mat, y);
+    doc.text(`${totalH_cm.toFixed(1)} (${totalH_in.toFixed(1)} in)`, CE.h, y, { align:'right' });
+    doc.text(sumHE.toFixed(2), CE.he, y, { align:'right' });
+    y += 6;
+
+    // E_eq summary — 1 บรรทัด
+    const E_eq_psi = sumH > 0 ? Math.pow(sumHE / sumH, 3) : 0;
+    const E_eq_MPa = E_eq_psi / MPa_TO_PSI;
+    setFont(false, 9);
+    rowPDF('E_eq (Odemark)', `${E_eq_psi.toLocaleString('en', {maximumFractionDigits:0})} psi  (${E_eq_MPa.toFixed(1)} MPa)`, y); y += 6;
+  }
   sep(y, '='); y += 6;
 
   // SLAB DESIGN
@@ -1529,7 +1592,7 @@ function generatePDF() {
   doc.text('Layer / Material', C.mat, y);
   doc.text('D(in)', C.din, y, { align:'right' });
   doc.text('D(cm)', C.dcm, y, { align:'right' });
-  doc.text('Margin', C.mg,  y, { align:'right' });
+  doc.text('W18 Ratio', C.mg,  y, { align:'right' });
   doc.text('Status', C.st,  y, { align:'right' });
   y += 3; sep(y, '-'); y += 5;
 
@@ -1539,7 +1602,7 @@ function generatePDF() {
   doc.text(`PCC Slab (${pavType})`, C.mat, y);
   doc.text(D_prov_in.toFixed(0),  C.din, y, { align:'right' });
   doc.text(D_prov_cm.toFixed(1),  C.dcm, y, { align:'right' });
-  doc.text((mg_in >= 0 ? '+' : '') + mg_in.toFixed(3), C.mg, y, { align:'right' });
+  doc.text(w18_ratio.toFixed(3),  C.mg,  y, { align:'right' });
 
   setFont(true, 8);
   if (!pass) doc.setTextColor(180, 0, 0);
